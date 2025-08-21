@@ -21,8 +21,8 @@
 
 	<!-- Модули проекта -->
 	<modules>
-		<module>main-service</module>
 		<module>stats-service</module>
+		<module>ewm-service</module>
 	</modules>
 
 	<properties>
