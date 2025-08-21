@@ -27,7 +27,7 @@ services:
 
   ewm-service:
     build:
-      context: ./main-service
+      context: ./ewm-service
       dockerfile: Dockerfile
     image: ewm-main-service:latest
     environment:
