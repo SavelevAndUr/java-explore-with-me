@@ -13,8 +13,6 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
 public class EndpointHit {
     @NotBlank(message = "App не может быть пустым")
     @Size(min = 1, max = 32, message = "Количество символов в поле app от 1 до 32")
@@ -33,3 +31,4 @@ public class EndpointHit {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime timestamp;
 }
+
