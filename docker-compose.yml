@@ -1,3 +1,7 @@
+# Объявление тома на уровне compose
+volumes:
+  postgres_data:
+
 services:
   stats-server:
     build: stats/stats-server
@@ -17,11 +21,14 @@ services:
     image: postgres:16.1
     container_name: ewm-stats-db
     ports:
-      - "6543:5432"  # Маппинг 6543 внешний -> 5432 внутренний
+      - "6543:5432"
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
       POSTGRES_DB: ewm_stats_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # Основной том для данных БД
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql  # (Опционально) Скрипт инициализации
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
       interval: 10s
