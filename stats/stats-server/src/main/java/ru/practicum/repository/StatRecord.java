@@ -9,8 +9,7 @@ import lombok.NonNull;
 import java.time.LocalDateTime;
 
 @Entity
-//@Table(name = "ewm_stats_db")
-@Table(name = "stats")
+@Table(name = "ewm_stats_db")
 @NoArgsConstructor
 @AllArgsConstructor
 @Data

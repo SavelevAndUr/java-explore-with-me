@@ -75,8 +75,7 @@ public class StatsClient {
             HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200) {
-                return json.readValue(response.body(), new TypeReference<List<ViewStats>>() {
-                });
+                return json.readValue(response.body(), new TypeReference<List<ViewStats>>() {});
             }
             log.warn("Unexpected response status: {}", response.statusCode());
         } catch (Exception e) {
@@ -105,5 +104,4 @@ public class StatsClient {
     private String encode(String value) {
         return URLEncoder.encode(value, StandardCharsets.UTF_8);
     }
-
 }
