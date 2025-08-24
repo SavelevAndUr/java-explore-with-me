@@ -2,6 +2,7 @@ package ru.practicum.controller;
 
 import jakarta.validation.Valid;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,14 +18,10 @@ import java.util.List;
 @RestController
 @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 @Validated
+@RequiredArgsConstructor
 public class StatsController {
 
     private final StatsService service;
-
-    @Autowired
-    public StatsController(StatsService service) {
-        this.service = service;
-    }
 
     @PostMapping(path = "/hit")
     @ResponseStatus(code = HttpStatus.CREATED)

@@ -1,5 +1,6 @@
 package ru.practicum.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,15 +14,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class StatsService {
 
     private final StatsRepository statsRepository;
     private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-    @Autowired
-    public StatsService(StatsRepository statsRepository) {
-        this.statsRepository = statsRepository;
-    }
 
     public void create(EndpointHit hit) {
         StatRecord record = StatMapper.toStatRecord(hit);
