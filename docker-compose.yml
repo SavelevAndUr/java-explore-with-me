@@ -1,6 +1,22 @@
 version: '3.8'
 
 services:
+  stats-db:
+    image: postgres:16.1
+    container_name: ewm-stats-db
+    ports:
+      - "6543:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ewm_stats_db
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U user -d ewm_stats_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
   stats-server:
     build: stats/stats-server
     container_name: ewm-stats-server
@@ -15,23 +31,23 @@ services:
       - SPRING_DATASOURCE_PASSWORD=password
       - JAVA_OPTS=-Duser.timezone=UTC
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9090/actuator/health"]
+      test: ["CMD-SHELL", "curl -f http://localhost:9090/actuator/health || exit 1"]
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 40s
+      retries: 5
+      start_period: 60s
 
-  stats-db:
+  ewm-db:
     image: postgres:16.1
-    container_name: ewm-stats-db
+    container_name: ewm-main-db
     ports:
-      - "6543:5432"
+      - "5432:5432"
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: ewm_stats_db
+      POSTGRES_DB: ewm_main_db
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
+      test: [ "CMD-SHELL", "pg_isready -U user -d ewm_main_db" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -53,20 +69,3 @@ services:
       - SPRING_DATASOURCE_PASSWORD=password
       - STATS_SERVER_URL=http://stats-server:9090
       - JAVA_OPTS=-Duser.timezone=UTC
-
-  ewm-db:
-    image: postgres:16.1
-    container_name: ewm-main-db
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: ewm_main_db
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-
