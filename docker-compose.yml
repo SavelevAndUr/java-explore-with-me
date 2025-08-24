@@ -48,6 +48,12 @@ services:
       - SPRING_DATASOURCE_PASSWORD=password
       - STATS_SERVER_URL=http://stats-server:9090
       - JAVA_OPTS=-Duser.timezone=UTC
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
 
   ewm-db:
     image: postgres:16.1
