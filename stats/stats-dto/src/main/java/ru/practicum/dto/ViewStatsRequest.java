@@ -12,15 +12,15 @@ import java.util.List;
 @Builder
 public class ViewStatsRequest {
     @NonNull
-    String app;
+    private String app;
     @NonNull
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    LocalDateTime start;
+    private LocalDateTime start;
     @NonNull
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    LocalDateTime end;
-    List<String> uris;
-    Boolean unique;
+    private LocalDateTime end;
+    private List<String> uris;
+    private Boolean unique;
 
     public Boolean isUnique() {
         return unique;
