@@ -49,11 +49,21 @@ services:
     ports:
       - "8080:8080"
     environment:
+      - SPRING_PROFILES_ACTIVE=docker
       - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewm_main_db
       - SPRING_DATASOURCE_USERNAME=user
       - SPRING_DATASOURCE_PASSWORD=password
       - STATS_SERVER_URL=http://stats-server:9090
       - JAVA_OPTS=-Duser.timezone=UTC
+      # Добавлены переменные для @Value в StatsClient
+      - SPRING_APPLICATION_NAME=ewm-service
+      - SERVICE_STATS_SERVICE_URI=http://stats-server:9090
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s  # даём приложению время на запуск
 
   ewm-db:
     image: postgres:16.1
