@@ -27,6 +27,7 @@ public class Compilation {
     private Set<Event> events;
 
     @Column(name = "pinned")
+    @Builder.Default
     private Boolean pinned = false;
 
     @NotBlank

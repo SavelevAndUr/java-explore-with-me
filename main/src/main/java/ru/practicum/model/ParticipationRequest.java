@@ -1,5 +1,6 @@
 package ru.practicum.model;
 
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -34,5 +35,6 @@ public class ParticipationRequest {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
+    @Builder.Default
     private RequestStatus status = RequestStatus.PENDING;
 }

@@ -7,7 +7,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -52,19 +51,23 @@ public class Event {
     private Location location;
 
     @Column(name = "paid", nullable = false)
+    @Builder.Default
     private Boolean paid = false;
 
     @Column(name = "participant_limit")
+    @Builder.Default
     private Integer participantLimit = 0;
 
     @Column(name = "published_on")
     private LocalDateTime publishedOn;
 
     @Column(name = "request_moderation")
+    @Builder.Default
     private Boolean requestModeration = true;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "state")
+    @Builder.Default
     private EventState state = EventState.PENDING;
 
     @NotBlank
@@ -73,8 +76,10 @@ public class Event {
     private String title;
 
     @Transient
+    @Builder.Default
     private Long views = 0L;
 
     @Transient
+    @Builder.Default
     private Long confirmedRequests = 0L;
 }
