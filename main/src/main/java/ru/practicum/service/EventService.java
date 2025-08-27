@@ -1,31 +1,39 @@
 package ru.practicum.service;
 
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.data.domain.PageRequest;
 import ru.practicum.dto.*;
-import ru.practicum.model.EventState;
+import ru.practicum.model.Event;
 
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public interface EventService {
-    EventFullDto createEvent(Long userId, NewEventDto newEventDto);
-    List<EventShortDto> getUserEvents(Long userId, Integer from, Integer size);
-    EventFullDto getUserEvent(Long userId, Long eventId);
-    EventFullDto updateUserEvent(Long userId, Long eventId, UpdateEventUserRequest updateEvent);
+    Optional<Event> findById(Integer eventId);
 
-    List<EventFullDto> getAdminEvents(List<Long> users, List<EventState> states,
-                                      List<Long> categories, LocalDateTime rangeStart,
-                                      LocalDateTime rangeEnd, Integer from, Integer size);
+    EventFullDto createEvent(Integer userId, NewEventDto newEventDto);
 
-    EventFullDto updateAdminEvent(Long eventId, UpdateEventAdminRequest updateEvent);
+    List<EventShortDto> getEventsByUserId(Integer userId, PageRequest page);
 
-    List<EventShortDto> getPublicEvents(String text, List<Long> categories, Boolean paid,
-                                        LocalDateTime rangeStart, LocalDateTime rangeEnd,
-                                        Boolean onlyAvailable, String sort, Integer from,
-                                        Integer size);
+    Map<Integer, Integer> getStats(List<Event> events);
 
-    EventFullDto getPublicEvent(Long id);
+    EventFullDto getEventsById(Integer userId, Integer eventId);
 
-    List<ParticipationRequestDto> getEventParticipants(Long userId, Long eventId);
-    EventRequestStatusUpdateResult updateRequestStatus(Long userId, Long eventId,
-                                                       EventRequestStatusUpdateRequest request);
+    EventFullDto updateEvent(Integer userId, Integer eventId, UpdateEventDto updateEventUserDto);
+
+    List<RequestDto> getRequestsByEventId(Integer userId, Integer eventId);
+
+    RequestsByStatusDto updateEventRequestsStatus(Integer eventId, Integer userId, RequestStatusUpdateDto statusUpdateDto);
+
+    List<EventFullDto> getEventsByAdminFilters(List<Integer> users, List<String> states, List<Integer> categories,
+                                               String rangeStart, String rangeEnd, PageRequest page);
+
+    List<EventShortDto> getEventsByPublicFilters(String text, List<Integer> categories, Boolean paid, String rangeStart,
+                                                 String rangeEnd, Boolean onlyAvailable, String sort, PageRequest of,
+                                                 HttpServletRequest request);
+
+    EventFullDto getEventById(Integer eventId, HttpServletRequest request);
+
+    List<Event> findByIds(List<Integer> eventsId);
 }

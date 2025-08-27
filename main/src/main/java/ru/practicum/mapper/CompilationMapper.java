@@ -1,45 +1,60 @@
 package ru.practicum.mapper;
 
 import ru.practicum.dto.CompilationDto;
+import ru.practicum.dto.NewCompilationDto;
+import ru.practicum.dto.UpdateCompilationRequest;
 import ru.practicum.model.Compilation;
 import ru.practicum.model.Event;
 
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class CompilationMapper {
 
-    public static CompilationDto toCompilationDto(Compilation compilation) {
-        if (compilation == null) {
-            return null;
-        }
+    public static Compilation toNewEntity(NewCompilationDto newCompilationDto, List<Event> events) {
+        return Compilation.builder()
+                .events(events)
+                .pinned(newCompilationDto.getPinned())
+                .title(newCompilationDto.getTitle())
+                .build();
+    }
 
-        Set<Event> events = compilation.getEvents();
-        java.util.List<ru.practicum.dto.EventShortDto> eventShortDtos = null;
-
-        if (events != null && !events.isEmpty()) {
-            eventShortDtos = events.stream()
-                    .map(EventMapper::toEventShortDto)
-                    .collect(Collectors.toList());
-        }
-
+    public static CompilationDto toDto(Compilation compilation, Map<Integer, Integer> views) {
         return CompilationDto.builder()
                 .id(compilation.getId())
-                .events(eventShortDtos)
+                .events(EventMapper.toShortDtos(compilation.getEvents(), views))
                 .pinned(compilation.getPinned())
                 .title(compilation.getTitle())
                 .build();
     }
 
-    public static Compilation toCompilation(CompilationDto compilationDto) {
-        if (compilationDto == null) {
-            return null;
-        }
-
+    public static Compilation toEntity(UpdateCompilationRequest newCompilationDto, List<Event> events,
+                                       Compilation compilation) {
         return Compilation.builder()
-                .id(compilationDto.getId())
-                .pinned(compilationDto.getPinned())
-                .title(compilationDto.getTitle())
+                .id(compilation.getId())
+                .events(events)
+                .pinned(newCompilationDto.getPinned())
+                .title(Objects.isNull(newCompilationDto.getTitle())
+                        ? compilation.getTitle() : newCompilationDto.getTitle())
                 .build();
+    }
+
+    public static Compilation toEntity(NewCompilationDto newCompilationDto, List<Event> events,
+                                       Compilation compilation) {
+        return Compilation.builder()
+                .id(compilation.getId())
+                .events(events)
+                .pinned(newCompilationDto.getPinned())
+                .title(Objects.isNull(newCompilationDto.getTitle())
+                        ? compilation.getTitle() : newCompilationDto.getTitle())
+                .build();
+    }
+
+    public static List<CompilationDto> toDtos(List<Compilation> compilations, Map<Integer, Integer> views) {
+        List<CompilationDto> dtos = new ArrayList<>();
+        for (Compilation compilation : compilations) {
+            dtos.add(toDto(compilation, views));
+        }
+        return dtos;
     }
 }

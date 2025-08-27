@@ -3,18 +3,36 @@ package ru.practicum.mapper;
 import ru.practicum.dto.CategoryDto;
 import ru.practicum.model.Category;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CategoryMapper {
-    public static CategoryDto toCategoryDto(Category category) {
+    public static Category toNewEntity(CategoryDto categoryDto) {
+        return Category.builder()
+                .name(categoryDto.getName())
+                .build();
+    }
+
+    public static CategoryDto toDto(Category category) {
         return CategoryDto.builder()
                 .id(category.getId())
                 .name(category.getName())
                 .build();
     }
 
-    public static Category toCategory(CategoryDto categoryDto) {
+    public static Category toEntity(Integer catId, CategoryDto categoryDto) {
+        String name = categoryDto.getName();
         return Category.builder()
-                .id(categoryDto.getId())
-                .name(categoryDto.getName())
+                .id(catId)
+                .name(name)
                 .build();
+    }
+
+    public static List<CategoryDto> toDtos(List<Category> categories) {
+        List<CategoryDto> categoriesDto = new ArrayList<>();
+        for (Category category : categories) {
+            categoriesDto.add(toDto(category));
+        }
+        return categoriesDto;
     }
 }

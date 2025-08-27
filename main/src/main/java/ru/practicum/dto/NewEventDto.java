@@ -1,45 +1,48 @@
 package ru.practicum.dto;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import ru.practicum.model.Location;
+import org.hibernate.validator.constraints.Length;
+import ru.practicum.dto.LocationDto;
+import ru.practicum.validation.Marker;
 
-import jakarta.validation.constraints.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class NewEventDto {
-    @NotBlank(message = "Annotation cannot be blank")
-    @Size(min = 20, max = 2000, message = "Annotation must be between 20 and 2000 characters")
+    @NotNull(groups = Marker.OnCreate.class)
+    @Length(min = 20, max = 2000)
     private String annotation;
-
-    @NotNull(message = "Category cannot be null")
-    private Long category;
-
-    @NotBlank(message = "Description cannot be blank")
-    @Size(min = 20, max = 7000, message = "Description must be between 20 and 7000 characters")
+    @NotNull(groups = Marker.OnCreate.class)
+    private Integer category;
+    @NotNull(groups = Marker.OnCreate.class)
+    @Length(min = 20, max = 7000)
     private String description;
-
-    @NotNull(message = "Event date cannot be null")
-    @Future(message = "Event date must be in the future")
-    private LocalDateTime eventDate;
-
-    @NotNull(message = "Location cannot be null")
-    private Location location;
-
-    @Builder.Default
-    private Boolean paid = false;
-
-    @Builder.Default
-    @PositiveOrZero(message = "Participant limit must be positive or zero")
-    private Integer participantLimit = 0;
-
-    @Builder.Default
-    private Boolean requestModeration = true;
-
-    @NotBlank(message = "Title cannot be blank")
-    @Size(min = 3, max = 120, message = "Title must be between 3 and 120 characters")
+    @NotNull(groups = Marker.OnCreate.class)
+    private String eventDate;
+    @NotNull(groups = Marker.OnCreate.class)
+    private LocationDto location;
+    protected Boolean paid;
+    protected Integer participantLimit;
+    protected Boolean requestModeration;
+    @NotNull(groups = Marker.OnCreate.class)
+    @Length(min = 3, max = 120)
     private String title;
+
+    public Boolean getPaid() {
+        return !Objects.isNull(paid) && paid;
+    }
+
+    public Integer getParticipantLimit() {
+        return Objects.isNull(participantLimit) ? 0 : participantLimit;
+    }
+
+    public Boolean getRequestModeration() {
+        return Objects.isNull(requestModeration) || requestModeration;
+    }
 }

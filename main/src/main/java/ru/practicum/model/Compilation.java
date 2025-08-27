@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import jakarta.persistence.*;
+
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -16,22 +18,13 @@ import java.util.Set;
 public class Compilation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+    private Integer id;
     @ManyToMany
-    @JoinTable(
-            name = "compilation_events",
+    @JoinTable(name = "compilation_events",
             joinColumns = @JoinColumn(name = "compilation_id"),
             inverseJoinColumns = @JoinColumn(name = "event_id")
     )
-    private Set<Event> events;
-
-    @Column(name = "pinned")
-    @Builder.Default
-    private Boolean pinned = false;
-
-    @NotBlank
-    @Size(min = 1, max = 50)
-    @Column(name = "title", nullable = false)
+    private List<Event> events;
     private String title;
+    private Boolean pinned;
 }

@@ -1,12 +1,18 @@
 package ru.practicum.service;
 
-import ru.practicum.dto.NewUserRequest;
+import org.springframework.data.domain.PageRequest;
 import ru.practicum.dto.UserDto;
+import ru.practicum.model.User;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UserService {
-    UserDto createUser(NewUserRequest newUserRequest);
-    List<UserDto> getUsers(List<Long> ids, Integer from, Integer size);
-    void deleteUser(Long userId);
+    UserDto createUser(UserDto userDto);
+
+    List<UserDto> getUsers(List<Integer> ids, PageRequest page);
+
+    void deleteUser(Integer userId);
+
+    Optional<User> findById(Integer userId);
 }

@@ -1,9 +1,7 @@
 package ru.practicum.model;
 
-import jakarta.persistence.Column;
+import jakarta.persistence.*;
 import lombok.*;
-
-import jakarta.persistence.Embeddable;
 
 @Embeddable
 @Data
@@ -11,9 +9,9 @@ import jakarta.persistence.Embeddable;
 @AllArgsConstructor
 @Builder
 public class Location {
-    @Column(name = "lat")
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
     private Float lat;
-
-    @Column(name = "lon")
     private Float lon;
 }

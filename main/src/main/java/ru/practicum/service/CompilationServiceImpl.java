@@ -1,6 +1,8 @@
 package ru.practicum.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -15,86 +17,82 @@ import ru.practicum.model.Event;
 import ru.practicum.repository.CompilationRepository;
 import ru.practicum.repository.EventRepository;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @Transactional(readOnly = true)
 public class CompilationServiceImpl implements CompilationService {
-
+    private static final String NOT_FOUND_COMPILATION_MSG = "Compilation not found";
+    private static final String NOT_FOUND_ID_REASON = "Incorrect Id";
     private final CompilationRepository compilationRepository;
-    private final EventRepository eventRepository;
+    private final EventService eventService;
 
     @Override
-    @Transactional
     public CompilationDto createCompilation(NewCompilationDto newCompilationDto) {
-        Set<Event> events = newCompilationDto.getEvents() != null ?
-                new HashSet<>(eventRepository.findByIdIn(newCompilationDto.getEvents())) :
-                new HashSet<>();
-
-        Compilation compilation = Compilation.builder()
-                .events(events)
-                .pinned(newCompilationDto.getPinned())
-                .title(newCompilationDto.getTitle())
-                .build();
-
-        Compilation savedCompilation = compilationRepository.save(compilation);
-        return CompilationMapper.toCompilationDto(savedCompilation);
+        List<Event> events = getEvents(newCompilationDto);
+        Compilation compilation = compilationRepository.save(CompilationMapper.toNewEntity(newCompilationDto, events));
+        log.info("Created compilation {}", compilation);
+        Map<Integer, Integer> views = eventService.getStats(events);
+        return CompilationMapper.toDto(compilation, views);
     }
 
     @Override
-    @Transactional
-    public CompilationDto updateCompilation(Long compId, UpdateCompilationRequest updateRequest) {
-        Compilation compilation = compilationRepository.findById(compId)
-                .orElseThrow(() -> new NotFoundException("Compilation with id=" + compId + " was not found"));
-
-        if (updateRequest.getEvents() != null) {
-            Set<Event> events = new HashSet<>(eventRepository.findByIdIn(updateRequest.getEvents()));
-            compilation.setEvents(events);
-        }
-
-        if (updateRequest.getPinned() != null) {
-            compilation.setPinned(updateRequest.getPinned());
-        }
-
-        if (updateRequest.getTitle() != null) {
-            compilation.setTitle(updateRequest.getTitle());
-        }
-
-        Compilation updatedCompilation = compilationRepository.save(compilation);
-        return CompilationMapper.toCompilationDto(updatedCompilation);
-    }
-
-    @Override
-    @Transactional
-    public void deleteCompilation(Long compId) {
-        Compilation compilation = compilationRepository.findById(compId)
-                .orElseThrow(() -> new NotFoundException("Compilation with id=" + compId + " was not found"));
-        compilationRepository.delete(compilation);
-    }
-
-    @Override
-    public List<CompilationDto> getCompilations(Boolean pinned, Integer from, Integer size) {
-        Pageable pageable = PageRequest.of(from / size, size);
-
-        if (pinned != null) {
-            return compilationRepository.findByPinned(pinned, pageable).stream()
-                    .map(CompilationMapper::toCompilationDto)
-                    .collect(Collectors.toList());
+    public void deleteById(Integer compId) {
+        if (compilationRepository.findById(compId).isPresent()) {
+            compilationRepository.deleteById(compId);
         } else {
-            return compilationRepository.findAll(pageable).stream()
-                    .map(CompilationMapper::toCompilationDto)
-                    .collect(Collectors.toList());
+            throw new NotFoundException(NOT_FOUND_COMPILATION_MSG, NOT_FOUND_ID_REASON);
         }
     }
 
     @Override
-    public CompilationDto getCompilation(Long compId) {
+    public CompilationDto updateCompilation(UpdateCompilationRequest updateCompilationDto, Integer compId) {
+        if (compilationRepository.findById(compId).isPresent()) {
+            List<Event> events = new ArrayList<>();
+            if (updateCompilationDto != null && updateCompilationDto.getEvents() != null) {
+                List<Integer> eventsId = new ArrayList<>(updateCompilationDto.getEvents());
+                events = eventService.findByIds(eventsId);
+            }
+            Compilation compilation1 = compilationRepository.findById(compId)
+                    .orElseThrow(() -> new NotFoundException("", ""));
+            Compilation compilation = CompilationMapper.toEntity(updateCompilationDto, events, compilation1);
+            compilation = compilationRepository.save(compilation);
+            log.info("Updated compilation {}", compilation);
+            Map<Integer, Integer> views = eventService.getStats(events);
+            return CompilationMapper.toDto(compilation, views);
+        } else {
+            throw new NotFoundException(NOT_FOUND_COMPILATION_MSG, NOT_FOUND_ID_REASON);
+        }
+    }
+
+    @Override
+    public List<CompilationDto> getCompilations(boolean pinned, PageRequest page) {
+        List<Compilation> compilations = compilationRepository.findAllByPinnedIs(pinned, page);
+        Set<Event> events = new HashSet<>();
+        for (Compilation compilation : compilations) {
+            events.addAll(compilation.getEvents());
+        }
+        Map<Integer, Integer> views = new HashMap<>(eventService.getStats(new ArrayList<>(events)));
+        return CompilationMapper.toDtos(compilations, views);
+    }
+
+    @Override
+    public CompilationDto getCompilation(Integer compId) {
         Compilation compilation = compilationRepository.findById(compId)
-                .orElseThrow(() -> new NotFoundException("Compilation with id=" + compId + " was not found"));
-        return CompilationMapper.toCompilationDto(compilation);
+                .orElseThrow(() -> new NotFoundException(NOT_FOUND_COMPILATION_MSG, NOT_FOUND_ID_REASON));
+        Map<Integer, Integer> views = eventService.getStats(compilation.getEvents());
+        return CompilationMapper.toDto(compilation, views);
+    }
+
+    private List<Event> getEvents(NewCompilationDto newCompilationDto) {
+        if (newCompilationDto != null && newCompilationDto.getEvents() != null) {
+            List<Integer> eventsId = new ArrayList<>(newCompilationDto.getEvents());
+            return eventService.findByIds(eventsId);
+        } else {
+            return Collections.emptyList();
+        }
     }
 }

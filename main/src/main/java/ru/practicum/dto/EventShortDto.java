@@ -1,5 +1,6 @@
 package ru.practicum.dto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -9,13 +10,21 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class EventShortDto {
+    @NotNull
     private String annotation;
+    @NotNull
     private CategoryDto category;
-    private Long confirmedRequests;
-    private LocalDateTime eventDate;
-    private Long id;
+    private Integer confirmedRequests;
+    @NotNull
+    private String eventDate;
+    private Integer id;
+    @NotNull
     private UserShortDto initiator;
+    @NotNull
     private Boolean paid;
+    @NotNull
     private String title;
-    private Long views;
+    private Integer views;
+    private Integer likes;
+    private Integer dislikes;
 }

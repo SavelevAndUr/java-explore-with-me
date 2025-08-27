@@ -3,33 +3,19 @@ package ru.practicum.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 import ru.practicum.dto.ViewStats;
+import ru.practicum.model.Stats;
 
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface StatsRepository extends JpaRepository<StatRecord, Long> {
+@Repository
+public interface StatsRepository extends JpaRepository<Stats, Long> {
 
-    @Query("select new ru.practicum.dto.ViewStats(sr.app, sr.uri, count(sr.id))" +
-            "from StatRecord sr " +
-            "WHERE sr.timestamp BETWEEN :start AND :end " +
-            "AND (:uris IS NULL OR sr.uri IN :uris) " +
-            "GROUP BY sr.app, sr.uri " +
-            "ORDER BY COUNT(sr.id) DESC ")
-    List<ViewStats> searchViewStatsWithUris(@Param("start") LocalDateTime start,
-                                            @Param("end") LocalDateTime end,
-                                            @Param("uris") List<String> uris);
+    @Query("select s from Stats s where s.uri in :uris and s.timestamp between :start and :end")
+    List<Stats> findAllByUrisAndTimestampIsBetween(List<String> uris, LocalDateTime start, LocalDateTime end);
 
-
-    @Query("SELECT new ru.practicum.dto.ViewStats(sr.app, sr.uri, COUNT(DISTINCT sr.ip)) " +
-            "FROM StatRecord sr " +
-            "WHERE sr.timestamp BETWEEN :start AND :end " +
-            "AND (:uris IS NULL OR sr.uri IN :uris) " +
-            "GROUP BY sr.app, sr.uri " +
-            "ORDER BY COUNT(DISTINCT sr.ip) DESC ")
-    List<ViewStats> searchUniqueViewStatsWithUris(
-            @Param("start") LocalDateTime start,
-            @Param("end") LocalDateTime end,
-            @Param("uris") List<String> uris);
+    List<Stats> findAllByTimestampIsBetween(LocalDateTime start, LocalDateTime end);
 }

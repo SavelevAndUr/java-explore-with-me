@@ -1,12 +1,18 @@
 package ru.practicum.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.hibernate.validator.constraints.Length;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class UserShortDto {
-    private Long id;
+    private Integer id;
+    @NotNull
+    @NotBlank
+    @Length(min = 2, max = 250)
     private String name;
 }

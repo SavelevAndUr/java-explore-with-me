@@ -1,51 +1,46 @@
 package ru.practicum.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.EventFullDto;
 import ru.practicum.dto.EventShortDto;
 import ru.practicum.service.EventService;
-import ru.practicum.service.StatsServiceIntegration;
 
 import jakarta.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
+
 import java.util.List;
 
 @RestController
 @RequestMapping("/events")
 @RequiredArgsConstructor
+@Slf4j
 public class PublicEventController {
     private final EventService eventService;
-    private final StatsServiceIntegration statsServiceIntegration;
 
-    @GetMapping
-    public List<EventShortDto> getEvents(@RequestParam(required = false) String text,
-                                         @RequestParam(required = false) List<Long> categories,
-                                         @RequestParam(required = false) Boolean paid,
-                                         @RequestParam(required = false)
-                                         @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-                                         LocalDateTime rangeStart,
-                                         @RequestParam(required = false)
-                                         @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-                                         LocalDateTime rangeEnd,
-                                         @RequestParam(defaultValue = "false") Boolean onlyAvailable,
-                                         @RequestParam(required = false) String sort,
-                                         @RequestParam(defaultValue = "0") Integer from,
-                                         @RequestParam(defaultValue = "10") Integer size,
-                                         HttpServletRequest request) {
-
-        // Отправляем статистику о просмотре списка событий
-        statsServiceIntegration.hit(request.getRequestURI(), request.getRemoteAddr());
-
-        return eventService.getPublicEvents(text, categories, paid, rangeStart, rangeEnd,
-                onlyAvailable, sort, from, size);
+    @GetMapping(value = "/{eventId}")
+    public EventFullDto getEventById(@PathVariable Integer eventId, HttpServletRequest request) {
+        log.info("Getting events by id={}", eventId);
+        return eventService.getEventById(eventId, request);
     }
 
-    @GetMapping("/{id}")
-    public EventFullDto getEvent(@PathVariable Long id, HttpServletRequest request) {
-        statsServiceIntegration.hit(request.getRequestURI(), request.getRemoteAddr());
-
-        return eventService.getPublicEvent(id);
+    @GetMapping
+    public List<EventShortDto> getEventsByFilters(@RequestParam(required = false) String text,
+                                                  @RequestParam(required = false) List<Integer> categories,
+                                                  @RequestParam(required = false) Boolean paid,
+                                                  @RequestParam(required = false) String rangeStart,
+                                                  @RequestParam(required = false) String rangeEnd,
+                                                  @RequestParam(required = false, defaultValue = "false")
+                                                  Boolean onlyAvailable,
+                                                  @RequestParam(required = false) String sort,
+                                                  @RequestParam(required = false, defaultValue = "0") int from,
+                                                  @RequestParam(required = false, defaultValue = "10") int size,
+                                                  HttpServletRequest request) {
+        log.info("Getting events by following filters text={}, categories={}, paid={}, rangeStart={}, " +
+                        "rangeEnd={}, onlyAvailable={}, sort={}, from={}, size={}", text, categories, paid, rangeStart,
+                rangeEnd, onlyAvailable, sort, from, size);
+        return eventService.getEventsByPublicFilters(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort,
+                PageRequest.of(from, size), request);
     }
 }

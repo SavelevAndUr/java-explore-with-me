@@ -1,17 +1,22 @@
 package ru.practicum.repository;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 import ru.practicum.model.User;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface UserRepository extends JpaRepository<User, Long> {
-    @Query("SELECT u FROM User u WHERE (:ids IS NULL OR u.id IN :ids)")
-    Page<User> findByIds(@Param("ids") List<Long> ids, Pageable pageable);
+@Repository
+public interface UserRepository extends JpaRepository<User, Integer> {
+    @Query("select u from User u order by u.id")
+    List<User> findAllOrderById(PageRequest page);
 
-    boolean existsByEmail(String email);
+    List<User> findAllByIdIn(List<Integer> ids);
+
+    void deleteUserById(Integer id);
+
+    Optional<User> findByName(String name);
 }
