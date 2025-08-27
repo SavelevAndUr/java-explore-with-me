@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.EventFullDto;
 import ru.practicum.dto.EventShortDto;
 import ru.practicum.service.EventService;
+import ru.practicum.service.StatsServiceIntegration;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
@@ -16,6 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PublicEventController {
     private final EventService eventService;
+    private final StatsServiceIntegration statsServiceIntegration;
 
     @GetMapping
     public List<EventShortDto> getEvents(@RequestParam(required = false) String text,
@@ -32,12 +34,18 @@ public class PublicEventController {
                                          @RequestParam(defaultValue = "0") Integer from,
                                          @RequestParam(defaultValue = "10") Integer size,
                                          HttpServletRequest request) {
+
+        // Отправляем статистику о просмотре списка событий
+        statsServiceIntegration.hit(request.getRequestURI(), request.getRemoteAddr());
+
         return eventService.getPublicEvents(text, categories, paid, rangeStart, rangeEnd,
                 onlyAvailable, sort, from, size);
     }
 
     @GetMapping("/{id}")
     public EventFullDto getEvent(@PathVariable Long id, HttpServletRequest request) {
+        statsServiceIntegration.hit(request.getRequestURI(), request.getRemoteAddr());
+
         return eventService.getPublicEvent(id);
     }
 }

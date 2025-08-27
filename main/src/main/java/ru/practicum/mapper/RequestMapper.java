@@ -13,7 +13,7 @@ public class RequestMapper {
 
         return ParticipationRequestDto.builder()
                 .id(request.getId())
-                .created(request.getCreated()) // Возвращаем LocalDateTime без форматирования
+                .created(request.getCreated())
                 .event(request.getEvent() != null ? request.getEvent().getId() : null)
                 .requester(request.getRequester() != null ? request.getRequester().getId() : null)
                 .status(request.getStatus() != null ? request.getStatus().name() : null)

@@ -44,14 +44,7 @@ public class StatsClient {
         this.json = json;
     }
 
-    public void hit(HttpServletRequest userRequest) {
-        EndpointHit hit = EndpointHit.builder()
-                .app(application)
-                .ip(userRequest.getRemoteAddr())
-                .uri(userRequest.getRequestURI())
-                .timestamp(LocalDateTime.now())
-                .build();
-
+    public void hit(EndpointHit hit) {
         try {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(statsServiceUri + "/hit"))
@@ -59,7 +52,8 @@ public class StatsClient {
                     .header("Content-Type", "application/json")
                     .build();
 
-            HttpResponse<Void> response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
+            HttpResponse<Void> response = httpClient.send(request,
+                    HttpResponse.BodyHandlers.discarding());
             log.debug("Hit recorded successfully. Status: {}", response.statusCode());
         } catch (Exception e) {
             log.error("Failed to record hit to stats service", e);

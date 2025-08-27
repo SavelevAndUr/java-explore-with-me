@@ -82,4 +82,61 @@ public class Event {
     @Transient
     @Builder.Default
     private Long confirmedRequests = 0L;
+
+    public boolean isParticipantLimitReached(Long currentConfirmedRequests) {
+        return participantLimit > 0 && currentConfirmedRequests >= participantLimit;
+    }
+
+    public boolean requiresModeration() {
+        return requestModeration;
+    }
+
+    public boolean isAvailableForParticipation(Long currentConfirmedRequests) {
+        return participantLimit == 0 || currentConfirmedRequests < participantLimit;
+    }
+
+    public boolean canBePublished() {
+        return state == EventState.PENDING;
+    }
+
+    public boolean canBeRejected() {
+        return state != EventState.PUBLISHED;
+    }
+
+    public boolean canBeUpdatedByUser() {
+        return state == EventState.PENDING || state == EventState.CANCELED;
+    }
+
+    public boolean isPublished() {
+        return state == EventState.PUBLISHED;
+    }
+
+    public boolean isCanceled() {
+        return state == EventState.CANCELED;
+    }
+
+    public boolean isPending() {
+        return state == EventState.PENDING;
+    }
+
+    public void publish() {
+        this.state = EventState.PUBLISHED;
+        this.publishedOn = LocalDateTime.now();
+    }
+
+    public void cancel() {
+        this.state = EventState.CANCELED;
+    }
+
+    public void sendToReview() {
+        this.state = EventState.PENDING;
+    }
+
+    public boolean isEventDateValid() {
+        return eventDate.isAfter(LocalDateTime.now().plusHours(2));
+    }
+
+    public boolean isEventDateValidForAdmin() {
+        return eventDate.isAfter(LocalDateTime.now().plusHours(1));
+    }
 }

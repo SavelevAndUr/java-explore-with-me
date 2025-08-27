@@ -3,6 +3,7 @@ package ru.practicum.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.client.StatsClient;
+import ru.practicum.dto.EndpointHit;
 import ru.practicum.dto.ViewStats;
 import ru.practicum.dto.ViewStatsRequest;
 
@@ -17,8 +18,14 @@ public class StatsServiceIntegrationImpl implements StatsServiceIntegration {
 
     @Override
     public void hit(String uri, String ip) {
-        // Реализация отправки hit в сервис статистики
-        // (использует StatsClient)
+        EndpointHit hit = EndpointHit.builder()
+                .app("explore-with-me")
+                .uri(uri)
+                .ip(ip)
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        statsClient.hit(hit);
     }
 
     @Override

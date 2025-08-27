@@ -11,12 +11,16 @@ import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.exception.ValidationException;
 import ru.practicum.mapper.EventMapper;
+import ru.practicum.mapper.LocationMapper;
+import ru.practicum.mapper.RequestMapper;
 import ru.practicum.model.*;
 import ru.practicum.repository.CategoryRepository;
 import ru.practicum.repository.EventRepository;
+import ru.practicum.repository.ParticipationRequestRepository;
 import ru.practicum.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,7 +32,8 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
-    private final StatsServiceIntegration statsService;
+    private final ParticipationRequestRepository requestRepository;
+    private final StatsServiceIntegration statsServiceIntegration;
 
     @Override
     @Transactional
@@ -69,7 +74,14 @@ public class EventServiceImpl implements EventService {
 
         Pageable pageable = PageRequest.of(from / size, size);
         return eventRepository.findByInitiatorId(userId, pageable).stream()
-                .map(EventMapper::toEventShortDto)
+                .map(event -> {
+                    // Добавляем confirmedRequests и views для каждого события
+                    Long confirmedRequests = requestRepository.countConfirmedRequests(event.getId());
+                    Long views = statsServiceIntegration.getEventViews(event.getId());
+                    event.setConfirmedRequests(confirmedRequests);
+                    event.setViews(views);
+                    return EventMapper.toEventShortDto(event);
+                })
                 .collect(Collectors.toList());
     }
 
@@ -77,6 +89,13 @@ public class EventServiceImpl implements EventService {
     public EventFullDto getUserEvent(Long userId, Long eventId) {
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
+
+        // Добавляем confirmedRequests и views
+        Long confirmedRequests = requestRepository.countConfirmedRequests(eventId);
+        Long views = statsServiceIntegration.getEventViews(eventId);
+        event.setConfirmedRequests(confirmedRequests);
+        event.setViews(views);
+
         return EventMapper.toEventFullDto(event);
     }
 
@@ -104,6 +123,13 @@ public class EventServiceImpl implements EventService {
         }
 
         Event updatedEvent = eventRepository.save(event);
+
+        // Добавляем confirmedRequests и views
+        Long confirmedRequests = requestRepository.countConfirmedRequests(eventId);
+        Long views = statsServiceIntegration.getEventViews(eventId);
+        updatedEvent.setConfirmedRequests(confirmedRequests);
+        updatedEvent.setViews(views);
+
         return EventMapper.toEventFullDto(updatedEvent);
     }
 
@@ -114,7 +140,14 @@ public class EventServiceImpl implements EventService {
         Pageable pageable = PageRequest.of(from / size, size);
         return eventRepository.findAdminEvents(users, states, categories, rangeStart, rangeEnd, pageable)
                 .stream()
-                .map(EventMapper::toEventFullDto)
+                .map(event -> {
+                    // Добавляем confirmedRequests и views для каждого события
+                    Long confirmedRequests = requestRepository.countConfirmedRequests(event.getId());
+                    Long views = statsServiceIntegration.getEventViews(event.getId());
+                    event.setConfirmedRequests(confirmedRequests);
+                    event.setViews(views);
+                    return EventMapper.toEventFullDto(event);
+                })
                 .collect(Collectors.toList());
     }
 
@@ -144,6 +177,13 @@ public class EventServiceImpl implements EventService {
 
         updateEventFields(event, updateEvent);
         Event updatedEvent = eventRepository.save(event);
+
+        // Добавляем confirmedRequests и views
+        Long confirmedRequests = requestRepository.countConfirmedRequests(eventId);
+        Long views = statsServiceIntegration.getEventViews(eventId);
+        updatedEvent.setConfirmedRequests(confirmedRequests);
+        updatedEvent.setViews(views);
+
         return EventMapper.toEventFullDto(updatedEvent);
     }
 
@@ -170,7 +210,14 @@ public class EventServiceImpl implements EventService {
 
         return eventRepository.findPublicEvents(text, categories, paid, start, end, onlyAvailable, pageable)
                 .stream()
-                .map(EventMapper::toEventShortDto)
+                .map(event -> {
+                    // Добавляем confirmedRequests и views для каждого события
+                    Long confirmedRequests = requestRepository.countConfirmedRequests(event.getId());
+                    Long views = statsServiceIntegration.getEventViews(event.getId());
+                    event.setConfirmedRequests(confirmedRequests);
+                    event.setViews(views);
+                    return EventMapper.toEventShortDto(event);
+                })
                 .collect(Collectors.toList());
     }
 
@@ -183,20 +230,167 @@ public class EventServiceImpl implements EventService {
             throw new NotFoundException("Event with id=" + id + " was not found");
         }
 
-        return EventMapper.toEventFullDto(event);
-    }
+        // Получаем количество просмотров из статистики
+        Long views = statsServiceIntegration.getEventViews(id);
+        event.setViews(views);
 
-    private void updateEventFields(Event event, Object updateRequest) {
+        // Получаем количество подтвержденных запросов
+        Long confirmedRequests = requestRepository.countConfirmedRequests(id);
+        event.setConfirmedRequests(confirmedRequests);
+
+        return EventMapper.toEventFullDto(event);
     }
 
     @Override
     public List<ParticipationRequestDto> getEventParticipants(Long userId, Long eventId) {
-        return List.of();
+        if (!userRepository.existsById(userId)) {
+            throw new NotFoundException("User with id=" + userId + " was not found");
+        }
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
+
+        if (!event.getInitiator().getId().equals(userId)) {
+            throw new NotFoundException("Event with id=" + eventId + " was not found");
+        }
+
+        return requestRepository.findByEventId(eventId).stream()
+                .map(RequestMapper::toParticipationRequestDto)
+                .collect(Collectors.toList());
     }
 
     @Override
+    @Transactional
     public EventRequestStatusUpdateResult updateRequestStatus(Long userId, Long eventId,
                                                               EventRequestStatusUpdateRequest request) {
-        return new EventRequestStatusUpdateResult();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User with id=" + userId + " was not found"));
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
+
+        if (!event.getInitiator().getId().equals(userId)) {
+            throw new NotFoundException("Event with id=" + eventId + " was not found");
+        }
+
+        if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {
+            throw new ConflictException("Event does not require moderation");
+        }
+
+        List<ParticipationRequest> requests = requestRepository.findByIdIn(request.getRequestIds());
+
+        // Проверяем, что все запросы находятся в состоянии PENDING
+        for (ParticipationRequest pr : requests) {
+            if (pr.getStatus() != RequestStatus.PENDING) {
+                throw new ConflictException("Request must be in PENDING state");
+            }
+        }
+
+        List<ParticipationRequestDto> confirmedRequests = new ArrayList<>();
+        List<ParticipationRequestDto> rejectedRequests = new ArrayList<>();
+
+        long confirmedCount = requestRepository.countConfirmedRequests(eventId);
+        int availableSlots = event.getParticipantLimit() - (int) confirmedCount;
+
+        if ("CONFIRMED".equals(request.getStatus())) {
+            if (availableSlots <= 0) {
+                throw new ConflictException("Participant limit reached");
+            }
+
+            for (ParticipationRequest pr : requests) {
+                if (availableSlots > 0) {
+                    pr.setStatus(RequestStatus.CONFIRMED);
+                    confirmedRequests.add(RequestMapper.toParticipationRequestDto(pr));
+                    availableSlots--;
+                } else {
+                    pr.setStatus(RequestStatus.REJECTED);
+                    rejectedRequests.add(RequestMapper.toParticipationRequestDto(pr));
+                }
+            }
+        } else if ("REJECTED".equals(request.getStatus())) {
+            for (ParticipationRequest pr : requests) {
+                pr.setStatus(RequestStatus.REJECTED);
+                rejectedRequests.add(RequestMapper.toParticipationRequestDto(pr));
+            }
+        }
+
+        requestRepository.saveAll(requests);
+
+        return EventRequestStatusUpdateResult.builder()
+                .confirmedRequests(confirmedRequests)
+                .rejectedRequests(rejectedRequests)
+                .build();
+    }
+
+    private void updateEventFields(Event event, Object updateRequest) {
+        if (updateRequest instanceof UpdateEventUserRequest userRequest) {
+            updateEventFromUserRequest(event, userRequest);
+        } else if (updateRequest instanceof UpdateEventAdminRequest adminRequest) {
+            updateEventFromAdminRequest(event, adminRequest);
+        }
+    }
+
+    private void updateEventFromUserRequest(Event event, UpdateEventUserRequest request) {
+        if (request.getAnnotation() != null) {
+            event.setAnnotation(request.getAnnotation());
+        }
+        if (request.getCategory() != null) {
+            Category category = categoryRepository.findById(request.getCategory())
+                    .orElseThrow(() -> new NotFoundException("Category not found"));
+            event.setCategory(category);
+        }
+        if (request.getDescription() != null) {
+            event.setDescription(request.getDescription());
+        }
+        if (request.getEventDate() != null) {
+            event.setEventDate(request.getEventDate());
+        }
+        if (request.getLocation() != null) {
+            event.setLocation(LocationMapper.toLocation(request.getLocation()));
+        }
+        if (request.getPaid() != null) {
+            event.setPaid(request.getPaid());
+        }
+        if (request.getParticipantLimit() != null) {
+            event.setParticipantLimit(request.getParticipantLimit());
+        }
+        if (request.getRequestModeration() != null) {
+            event.setRequestModeration(request.getRequestModeration());
+        }
+        if (request.getTitle() != null) {
+            event.setTitle(request.getTitle());
+        }
+    }
+
+    private void updateEventFromAdminRequest(Event event, UpdateEventAdminRequest request) {
+        if (request.getAnnotation() != null) {
+            event.setAnnotation(request.getAnnotation());
+        }
+        if (request.getCategory() != null) {
+            Category category = categoryRepository.findById(request.getCategory())
+                    .orElseThrow(() -> new NotFoundException("Category not found"));
+            event.setCategory(category);
+        }
+        if (request.getDescription() != null) {
+            event.setDescription(request.getDescription());
+        }
+        if (request.getEventDate() != null) {
+            event.setEventDate(request.getEventDate());
+        }
+        if (request.getLocation() != null) {
+            event.setLocation(LocationMapper.toLocation(request.getLocation()));
+        }
+        if (request.getPaid() != null) {
+            event.setPaid(request.getPaid());
+        }
+        if (request.getParticipantLimit() != null) {
+            event.setParticipantLimit(request.getParticipantLimit());
+        }
+        if (request.getRequestModeration() != null) {
+            event.setRequestModeration(request.getRequestModeration());
+        }
+        if (request.getTitle() != null) {
+            event.setTitle(request.getTitle());
+        }
     }
 }
