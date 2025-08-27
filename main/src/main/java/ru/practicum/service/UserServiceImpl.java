@@ -27,17 +27,17 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDto createUser(NewUserRequest newUserRequest) {
-
-        if (userRepository.existsByEmail(newUserRequest.getEmail())) {
-            throw new ConflictException("Email already exists");
-        }
-
+        // Дополнительная валидация
         if (newUserRequest.getName().trim().isEmpty()) {
             throw new ValidationException("Name cannot be empty or consist only of whitespace");
         }
 
         if (newUserRequest.getEmail().trim().isEmpty()) {
             throw new ValidationException("Email cannot be empty or consist only of whitespace");
+        }
+
+        if (userRepository.existsByEmail(newUserRequest.getEmail())) {
+            throw new ConflictException("Email already exists");
         }
 
         User user = User.builder()

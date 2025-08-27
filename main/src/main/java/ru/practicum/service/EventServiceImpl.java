@@ -38,16 +38,20 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventFullDto createEvent(Long userId, NewEventDto newEventDto) {
+        // Валидация выполняется автоматически Spring'ом перед вызовом этого метода
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User with id=" + userId + " was not found"));
 
         Category category = categoryRepository.findById(newEventDto.getCategory())
                 .orElseThrow(() -> new NotFoundException("Category with id=" + newEventDto.getCategory() + " was not found"));
 
+        // Бизнес-логика валидации
         if (newEventDto.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
             throw new ValidationException("Event date must be at least 2 hours from now");
         }
 
+        // Установка значений по умолчанию
         Boolean paid = newEventDto.getPaid() != null ? newEventDto.getPaid() : false;
         Integer participantLimit = newEventDto.getParticipantLimit() != null ? newEventDto.getParticipantLimit() : 0;
         Boolean requestModeration = newEventDto.getRequestModeration() != null ? newEventDto.getRequestModeration() : true;
