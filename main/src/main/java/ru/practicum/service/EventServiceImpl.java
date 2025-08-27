@@ -208,17 +208,20 @@ public class EventServiceImpl implements EventService {
             pageable = PageRequest.of(from / size, size);
         }
 
-        return eventRepository.findPublicEvents(text, categories, paid, start, end, onlyAvailable, pageable)
-                .stream()
-                .map(event -> {
-                    // Добавляем confirmedRequests и views для каждого события
-                    Long confirmedRequests = requestRepository.countConfirmedRequests(event.getId());
-                    Long views = statsServiceIntegration.getEventViews(event.getId());
-                    event.setConfirmedRequests(confirmedRequests);
-                    event.setViews(views);
-                    return EventMapper.toEventShortDto(event);
-                })
-                .collect(Collectors.toList());
+        try {
+            return eventRepository.findPublicEvents(text, categories, paid, start, end, onlyAvailable, pageable)
+                    .stream()
+                    .map(event -> {
+                        Long confirmedRequests = requestRepository.countConfirmedRequests(event.getId());
+                        Long views = statsServiceIntegration.getEventViews(event.getId());
+                        event.setConfirmedRequests(confirmedRequests);
+                        event.setViews(views);
+                        return EventMapper.toEventShortDto(event);
+                    })
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new ValidationException("Error processing events: " + e.getMessage());
+        }
     }
 
     @Override
