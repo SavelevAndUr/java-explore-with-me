@@ -48,6 +48,10 @@ public class EventServiceImpl implements EventService {
             throw new ValidationException("Event date must be at least 2 hours from now");
         }
 
+        Boolean paid = newEventDto.getPaid() != null ? newEventDto.getPaid() : false;
+        Integer participantLimit = newEventDto.getParticipantLimit() != null ? newEventDto.getParticipantLimit() : 0;
+        Boolean requestModeration = newEventDto.getRequestModeration() != null ? newEventDto.getRequestModeration() : true;
+
         Event event = Event.builder()
                 .annotation(newEventDto.getAnnotation())
                 .category(category)
@@ -55,9 +59,9 @@ public class EventServiceImpl implements EventService {
                 .eventDate(newEventDto.getEventDate())
                 .initiator(user)
                 .location(newEventDto.getLocation())
-                .paid(newEventDto.getPaid())
-                .participantLimit(newEventDto.getParticipantLimit())
-                .requestModeration(newEventDto.getRequestModeration())
+                .paid(paid)
+                .participantLimit(participantLimit)
+                .requestModeration(requestModeration)
                 .title(newEventDto.getTitle())
                 .state(EventState.PENDING)
                 .build();

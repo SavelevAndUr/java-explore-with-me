@@ -22,7 +22,7 @@ public class Event {
 
     @NotBlank
     @Size(min = 20, max = 2000)
-    @Column(name = "annotation", nullable = false)
+    @Column(name = "annotation", nullable = false, columnDefinition = "TEXT")
     private String annotation;
 
     @NotNull
@@ -35,7 +35,7 @@ public class Event {
     private LocalDateTime createdOn;
 
     @Size(min = 20, max = 7000)
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
     @NotNull
