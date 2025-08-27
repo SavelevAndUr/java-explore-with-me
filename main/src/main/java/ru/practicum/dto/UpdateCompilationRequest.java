@@ -14,7 +14,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 public class UpdateCompilationRequest {
-    private Set<Integer> events;
+    private Set<Long> events;
     private Boolean pinned;
     @Length(min = 2, max = 50)
     private String title;

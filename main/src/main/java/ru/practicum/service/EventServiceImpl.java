@@ -63,13 +63,13 @@ public class EventServiceImpl implements EventService {
     private EntityManager entityManager;
 
     @Override
-    public Optional<Event> findById(Integer eventId) {
+    public Optional<Event> findById(Long eventId) {
         return eventRepository.findById(eventId);
     }
 
     @Override
     @Transactional
-    public EventFullDto createEvent(Integer userId, NewEventDto newEventDto) {
+    public EventFullDto createEvent(Long userId, NewEventDto newEventDto) {
         Category category = categoryService.getCategoryEntity(newEventDto.getCategory());
         User initiator = userService.findById(userId)
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_USER_MSG, NOT_FOUND_ID_REASON));
@@ -92,18 +92,18 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventShortDto> getEventsByUserId(Integer userId, PageRequest page) {
+    public List<EventShortDto> getEventsByUserId(Long userId, PageRequest page) {
         List<Event> events = eventRepository.findAllByInitiatorId(userId, page);
-        Map<Integer, Integer> views = getStats(events);
+        Map<Long, Integer> views = getStats(events);
         log.info("Getting events {}", events);
         return EventMapper.toShortDtos(events, views);
     }
 
     @Override
-    public Map<Integer, Integer> getStats(List<Event> events) {
-        Map<Integer, Integer> views = new HashMap<>();
+    public Map<Long, Integer> getStats(List<Event> events) {
+        Map<Long, Integer> views = new HashMap<>();
         for (Event event : events) {
-            Integer id = event.getId();
+            Long id = event.getId();
             Integer view = getStats(id);
             views.put(id, view);
         }
@@ -111,7 +111,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventFullDto getEventsById(Integer userId, Integer eventId) {
+    public EventFullDto getEventsById(Long userId, Long eventId) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_EVENT_MSG, NOT_FOUND_ID_REASON));
         Integer views = getStats(event.getId());
@@ -121,7 +121,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventFullDto updateEvent(Integer userId, Integer eventId, UpdateEventDto updateEventUserDto) {
+    public EventFullDto updateEvent(Long userId, Long eventId, UpdateEventDto updateEventUserDto) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_EVENT_MSG, NOT_FOUND_ID_REASON));
 
@@ -148,13 +148,13 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<RequestDto> getRequestsByEventId(Integer userId, Integer eventId) {
+    public List<RequestDto> getRequestsByEventId(Long userId, Long eventId) {
         return requestService.getRequestsByEventId(eventId);
     }
 
     @Override
     @Transactional
-    public RequestsByStatusDto updateEventRequestsStatus(Integer eventId, Integer userId,
+    public RequestsByStatusDto updateEventRequestsStatus(Long eventId, Long userId,
                                                          RequestStatusUpdateDto statusUpdateDto) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_EVENT_MSG, NOT_FOUND_ID_REASON));
@@ -162,13 +162,13 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventFullDto> getEventsByAdminFilters(List<Integer> users, List<String> statesStr, List<Integer> categories,
+    public List<EventFullDto> getEventsByAdminFilters(List<Long> users, List<String> statesStr, List<Integer> categories,
                                                       String rangeStart, String rangeEnd, PageRequest page) {
         LocalDateTime start = parseDateTime(rangeStart);
         LocalDateTime end = parseDateTime(rangeEnd);
 
         List<Event> events = getEventsByFilters(null, null, users, statesStr, categories, start, end, page);
-        Map<Integer, Integer> views = getStats(events);
+        Map<Long, Integer> views = getStats(events);
         log.info("Getting events {}", events);
         return EventMapper.toFullDtos(events, views);
     }
@@ -195,7 +195,7 @@ public class EventServiceImpl implements EventService {
                     .collect(Collectors.toList());
         }
 
-        Map<Integer, Integer> views = getStats(events);
+        Map<Long, Integer> views = getStats(events);
         saveStats(request);
         log.info("Getting events {}", events);
 
@@ -204,7 +204,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventFullDto getEventById(Integer eventId, HttpServletRequest request) {
+    public EventFullDto getEventById(Long eventId, HttpServletRequest request) {
         Event event = eventRepository.findByIdAndState(eventId, State.PUBLISHED)
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_EVENT_MSG, NOT_FOUND_ID_REASON));
         Integer views = getStats(event.getId());
@@ -215,11 +215,11 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<Event> findByIds(List<Integer> eventsId) {
+    public List<Event> findByIds(List<Long> eventsId) {
         return eventRepository.findAllById(eventsId);
     }
 
-    private Integer getStats(Integer id) {
+    private Integer getStats(Long id) {
         try {
             ResponseEntity<List<ViewStats>> response = statsClient.getStats(START, END, URI + id, UNIQUE);
             List<ViewStats> responseStatsDtos = response.getBody();
@@ -247,7 +247,7 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private void checkState(Integer userId, Event event) {
+    private void checkState(Long userId, Event event) {
         if (Objects.nonNull(userId)) {
             if (Objects.equals(event.getState(), State.PUBLISHED)) {
                 throw new ConflictException(INCORRECT_STATE_MSG, INCORRECT_STATE_REASON);
@@ -302,7 +302,7 @@ public class EventServiceImpl implements EventService {
                 .count();
     }
 
-    private List<Event> getEventsByFilters(String text, Boolean paid, List<Integer> users, List<String> statesStr,
+    private List<Event> getEventsByFilters(String text, Boolean paid, List<Long> users, List<String> statesStr,
                                            List<Integer> categories, LocalDateTime start, LocalDateTime end,
                                            PageRequest page) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();

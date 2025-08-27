@@ -21,7 +21,7 @@ public class EventFullDto extends EventShortDto {
 
     @Builder(builderMethodName = "childBuilder")
     public EventFullDto(@NotNull String annotation, @NotNull CategoryDto category, Integer confirmedRequests,
-                        @NotNull String eventDate, Integer id, @NotNull UserShortDto initiator, @NotNull Boolean paid,
+                        @NotNull String eventDate, Long id, @NotNull UserShortDto initiator, @NotNull Boolean paid,
                         @NotNull String title, Integer views, Integer likes, Integer dislikes, String createdOn,
                         String description, LocationDto location, Integer participantLimit, String publishedOn,
                         Boolean requestModeration, State state) {

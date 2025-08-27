@@ -20,19 +20,19 @@ public class PrivateRequestController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public RequestDto createRequest(@PathVariable Integer userId, @RequestParam(required = false) Integer eventId) {
+    public RequestDto createRequest(@PathVariable Long userId, @RequestParam(required = false) Long eventId) {
         log.info("Creating request for event={} from user={}", eventId, userId);
         return requestService.createRequest(userId, eventId);
     }
 
     @GetMapping
-    public List<RequestDto> getRequestsByUserId(@PathVariable Integer userId) {
+    public List<RequestDto> getRequestsByUserId(@PathVariable Long userId) {
         log.info("Searching request for user={}", userId);
         return requestService.getRequestsByUserId(userId);
     }
 
     @PatchMapping(value = "/{requestId}/cancel")
-    public RequestDto cancelRequest(@PathVariable Integer userId, @PathVariable Integer requestId) {
+    public RequestDto cancelRequest(@PathVariable Long userId, @PathVariable Long requestId) {
         log.info("Canceling request={} for user={}", requestId, userId);
         return requestService.cancelRequest(userId, requestId);
     }

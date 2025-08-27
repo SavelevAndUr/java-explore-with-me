@@ -17,7 +17,7 @@ public class EventShortDto {
     private Integer confirmedRequests;
     @NotNull
     private String eventDate;
-    private Integer id;
+    private Long id;
     @NotNull
     private UserShortDto initiator;
     @NotNull

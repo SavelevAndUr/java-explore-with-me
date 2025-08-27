@@ -10,30 +10,30 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface EventService {
-    Optional<Event> findById(Integer eventId);
+    Optional<Event> findById(Long eventId);
 
-    EventFullDto createEvent(Integer userId, NewEventDto newEventDto);
+    EventFullDto createEvent(Long userId, NewEventDto newEventDto);
 
-    List<EventShortDto> getEventsByUserId(Integer userId, PageRequest page);
+    List<EventShortDto> getEventsByUserId(Long userId, PageRequest page);
 
-    Map<Integer, Integer> getStats(List<Event> events);
+    Map<Long, Integer> getStats(List<Event> events);
 
-    EventFullDto getEventsById(Integer userId, Integer eventId);
+    EventFullDto getEventsById(Long userId, Long eventId);
 
-    EventFullDto updateEvent(Integer userId, Integer eventId, UpdateEventDto updateEventUserDto);
+    EventFullDto updateEvent(Long userId, Long eventId, UpdateEventDto updateEventUserDto);
 
-    List<RequestDto> getRequestsByEventId(Integer userId, Integer eventId);
+    List<RequestDto> getRequestsByEventId(Long userId, Long eventId);
 
-    RequestsByStatusDto updateEventRequestsStatus(Integer eventId, Integer userId, RequestStatusUpdateDto statusUpdateDto);
+    RequestsByStatusDto updateEventRequestsStatus(Long eventId, Long userId, RequestStatusUpdateDto statusUpdateDto);
 
-    List<EventFullDto> getEventsByAdminFilters(List<Integer> users, List<String> states, List<Integer> categories,
+    List<EventFullDto> getEventsByAdminFilters(List<Long> users, List<String> states, List<Integer> categories,
                                                String rangeStart, String rangeEnd, PageRequest page);
 
     List<EventShortDto> getEventsByPublicFilters(String text, List<Integer> categories, Boolean paid, String rangeStart,
                                                  String rangeEnd, Boolean onlyAvailable, String sort, PageRequest of,
                                                  HttpServletRequest request);
 
-    EventFullDto getEventById(Integer eventId, HttpServletRequest request);
+    EventFullDto getEventById(Long eventId, HttpServletRequest request);
 
-    List<Event> findByIds(List<Integer> eventsId);
+    List<Event> findByIds(List<Long> eventsId);
 }

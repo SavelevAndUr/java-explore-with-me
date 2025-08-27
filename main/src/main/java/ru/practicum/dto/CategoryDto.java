@@ -10,7 +10,7 @@ import org.hibernate.validator.constraints.Length;
 @AllArgsConstructor
 @Builder
 public class CategoryDto {
-    private Integer id;
+    private Long id;
     @NotNull
     @NotBlank
     @Length(min = 2, max = 50)

@@ -47,7 +47,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public RequestDto createRequest(Integer userId, Integer eventId) {
+    public RequestDto createRequest(Long userId, Long eventId) {
         User user = userService.findById(userId)
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_USER_MSG, NOT_FOUND_ID_REASON));
         log.info("Creating request for user {}", user);
@@ -64,14 +64,14 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public List<RequestDto> getRequestsByUserId(Integer userId) {
+    public List<RequestDto> getRequestsByUserId(Long userId) {
         List<Request> requests = requestRepository.findAllByRequesterId(userId);
         log.info("Getting requests {} and reverting to controller as dto", requests);
         return RequestMapper.toRequestsDto(requests);
     }
 
     @Override
-    public RequestDto cancelRequest(Integer userId, Integer requestId) {
+    public RequestDto cancelRequest(Long userId, Long requestId) {
         Request request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_REQUEST_MSG, NOT_FOUND_ID_REASON));
         request.setStatus(RequestStatus.CANCELED);
@@ -80,7 +80,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public List<RequestDto> getRequestsByEventId(Integer eventId) {
+    public List<RequestDto> getRequestsByEventId(Long eventId) {
         List<Request> requests = requestRepository.findAllByEventId(eventId);
         log.info("Getting requests {}", requests);
         return RequestMapper.toRequestsDto(requests);
@@ -91,7 +91,7 @@ public class RequestServiceImpl implements RequestService {
     public RequestsByStatusDto updateRequestsStatusByEvent(RequestStatusUpdateDto statusUpdateDto, Event event) {
         int space = getAvailableSpace(event);
         RequestStatus requestStatus = RequestStatus.valueOf(statusUpdateDto.getStatus().toString());
-        List<Integer> requestIds = statusUpdateDto.getRequestIds();
+        List<Long> requestIds = statusUpdateDto.getRequestIds();
         List<Request> requests = requestRepository.findAllById(requestIds);
         requests = requestRepository.saveAll(modifyStatusRequests(requests, space, requestStatus));
         log.info("Changed status for requests {}", requests);

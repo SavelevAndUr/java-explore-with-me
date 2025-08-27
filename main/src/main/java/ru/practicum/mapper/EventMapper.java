@@ -102,7 +102,7 @@ public class EventMapper {
         return Objects.nonNull(value) ? value : defaultValue;
     }
 
-    public static List<EventShortDto> toShortDtos(List<Event> events, Map<Integer, Integer> views) {
+    public static List<EventShortDto> toShortDtos(List<Event> events, Map<Long, Integer> views) {
         List<EventShortDto> shortsDtos = new ArrayList<>();
         for (Event event : events) {
             shortsDtos.add(toShortDto(event, views.get(event.getId())));
@@ -110,7 +110,7 @@ public class EventMapper {
         return shortsDtos;
     }
 
-    public static List<EventFullDto> toFullDtos(List<Event> events, Map<Integer, Integer> views) {
+    public static List<EventFullDto> toFullDtos(List<Event> events, Map<Long, Integer> views) {
         List<EventFullDto> fullDtos = new ArrayList<>();
         for (Event event : events) {
             fullDtos.add(toFullDto(event, views.get(event.getId())));

@@ -8,13 +8,13 @@ import ru.practicum.model.Event;
 import java.util.List;
 
 public interface RequestService {
-    RequestDto createRequest(Integer userId, Integer eventId);
+    RequestDto createRequest(Long userId, Long eventId);
 
-    List<RequestDto> getRequestsByUserId(Integer userId);
+    List<RequestDto> getRequestsByUserId(Long userId);
 
-    RequestDto cancelRequest(Integer userId, Integer requestId);
+    RequestDto cancelRequest(Long userId, Long requestId);
 
-    List<RequestDto> getRequestsByEventId(Integer eventId);
+    List<RequestDto> getRequestsByEventId(Long eventId);
 
     RequestsByStatusDto updateRequestsStatusByEvent(RequestStatusUpdateDto statusUpdateDto, Event event);
 }

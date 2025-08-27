@@ -19,7 +19,7 @@ public class NewEventDto {
     @Length(min = 20, max = 2000)
     private String annotation;
     @NotNull(groups = Marker.OnCreate.class)
-    private Integer category;
+    private Long category;
     @NotNull(groups = Marker.OnCreate.class)
     @Length(min = 20, max = 7000)
     private String description;

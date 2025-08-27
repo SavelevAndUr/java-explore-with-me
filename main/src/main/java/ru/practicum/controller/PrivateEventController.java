@@ -28,13 +28,13 @@ public class PrivateEventController {
     @PostMapping
     @Validated
     @ResponseStatus(HttpStatus.CREATED)
-    public EventFullDto createEvent(@PathVariable Integer userId, @Valid @RequestBody NewEventDto newEventDto) {
+    public EventFullDto createEvent(@PathVariable Long userId, @Valid @RequestBody NewEventDto newEventDto) {
         log.info("Creating event={} from user={}", newEventDto, userId);
         return eventService.createEvent(userId, newEventDto);
     }
 
     @GetMapping
-    public List<EventShortDto> getEvents(@PathVariable Integer userId,
+    public List<EventShortDto> getEvents(@PathVariable Long userId,
                                          @RequestParam(required = false, defaultValue = "0") int from,
                                          @RequestParam(required = false, defaultValue = "10") int size) {
         log.info("Getting events for user={} from={} size={}", userId, from, size);
@@ -42,26 +42,26 @@ public class PrivateEventController {
     }
 
     @GetMapping(value = "/{eventId}")
-    public EventFullDto getEvent(@PathVariable Integer userId, @PathVariable Integer eventId) {
+    public EventFullDto getEvent(@PathVariable Long userId, @PathVariable Long eventId) {
         log.info("Getting event={} fo user={}", eventId, userId);
         return eventService.getEventsById(userId, eventId);
     }
 
     @PatchMapping(value = "/{eventId}")
-    public EventFullDto updateEvent(@PathVariable Integer userId, @PathVariable Integer eventId,
+    public EventFullDto updateEvent(@PathVariable Long userId, @PathVariable Long eventId,
                                     @Valid @RequestBody UpdateEventDto updateEventUserDto) {
         log.info("Updating event={} from user={} by following data = {}", eventId, userId, updateEventUserDto);
         return eventService.updateEvent(userId, eventId, updateEventUserDto);
     }
 
     @GetMapping(value = "/{eventId}/requests")
-    public List<RequestDto> getRequestsByEvent(@PathVariable Integer userId, @PathVariable Integer eventId) {
+    public List<RequestDto> getRequestsByEvent(@PathVariable Long userId, @PathVariable Long eventId) {
         log.info("Getting requests for event={} fo user={}", eventId, userId);
         return eventService.getRequestsByEventId(userId, eventId);
     }
 
     @PatchMapping(value = "/{eventId}/requests")
-    public RequestsByStatusDto updateStatusRequests(@PathVariable Integer userId, @PathVariable Integer eventId,
+    public RequestsByStatusDto updateStatusRequests(@PathVariable Long userId, @PathVariable Long eventId,
                                                     @Valid @RequestBody RequestStatusUpdateDto requestStatusUpdateDto) {
         log.info("Updating status for requests={} for event={} from user={}", requestStatusUpdateDto, eventId, userId);
         return eventService.updateEventRequestsStatus(eventId, userId, requestStatusUpdateDto);

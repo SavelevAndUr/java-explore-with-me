@@ -9,13 +9,13 @@ import java.util.List;
 public interface CategoryService {
     CategoryDto createCategory(CategoryDto categoryDto);
 
-    void deleteCategory(Integer catId);
+    void deleteCategory(Long catId);
 
-    CategoryDto updateCategory(Integer catId, CategoryDto categoryDto);
+    CategoryDto updateCategory(Long catId, CategoryDto categoryDto);
 
     List<CategoryDto> getCategories(PageRequest page);
 
-    CategoryDto getCategory(Integer catId);
+    CategoryDto getCategory(Long catId);
 
-    Category getCategoryEntity(Integer catId);
+    Category getCategoryEntity(Long catId);
 }

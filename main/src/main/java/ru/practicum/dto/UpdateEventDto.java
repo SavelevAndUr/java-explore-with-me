@@ -11,7 +11,7 @@ public class UpdateEventDto extends NewEventDto {
     private final StateAction stateAction;
 
     @Builder(builderMethodName = "childBuilder")
-    public UpdateEventDto(@Length(min = 20, max = 2000) String annotation, Integer category,
+    public UpdateEventDto(@Length(min = 20, max = 2000) String annotation, Long category,
                           @Length(min = 20, max = 7000) String description, String eventDate, LocationDto location,
                           Boolean paid, Integer participantLimit, Boolean requestModeration, String title,
                           StateAction stateAction) {

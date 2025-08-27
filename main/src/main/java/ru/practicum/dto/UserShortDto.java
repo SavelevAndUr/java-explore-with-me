@@ -10,7 +10,7 @@ import org.hibernate.validator.constraints.Length;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserShortDto {
-    private Integer id;
+    private Long id;
     @NotNull
     @NotBlank
     @Length(min = 2, max = 250)

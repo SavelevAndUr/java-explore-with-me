@@ -1,5 +1,7 @@
 package ru.practicum.service;
 
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.dto.LocationDto;
@@ -8,13 +10,10 @@ import ru.practicum.model.Location;
 import ru.practicum.repository.LocationRepository;
 
 @Service
+@RequiredArgsConstructor
+@Transactional
 public class LocationServiceImpl implements LocationService {
     private final LocationRepository locationRepository;
-
-    @Autowired
-    public LocationServiceImpl(LocationRepository locationRepository) {
-        this.locationRepository = locationRepository;
-    }
 
     @Override
     public Location saveLocation(LocationDto locationDto) {

@@ -11,7 +11,7 @@ import lombok.*;
 public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
     private Float lat;
     private Float lon;
 }

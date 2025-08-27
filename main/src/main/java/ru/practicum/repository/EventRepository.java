@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface EventRepository extends JpaRepository<Event, Integer> {
-    List<Event> findAllByInitiatorId(Integer userId, PageRequest page);
+public interface EventRepository extends JpaRepository<Event, Long> {
+    List<Event> findAllByInitiatorId(Long userId, PageRequest page);
 
-    Optional<Event> findByIdAndState(Integer eventId, State published);
+    Optional<Event> findByIdAndState(Long eventId, State published);
 }

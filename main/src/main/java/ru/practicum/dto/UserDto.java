@@ -18,7 +18,7 @@ public class UserDto extends UserShortDto {
     private String email;
 
     @Builder(builderMethodName = "childBuilder")
-    public UserDto(Integer id, @NotNull String name, String email) {
+    public UserDto(Long id, @NotNull String name, String email) {
         super(id, name);
         this.email = email;
     }

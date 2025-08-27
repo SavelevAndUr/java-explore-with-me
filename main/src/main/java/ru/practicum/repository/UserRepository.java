@@ -10,13 +10,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Integer> {
+public interface UserRepository extends JpaRepository<User, Long> {
     @Query("select u from User u order by u.id")
     List<User> findAllOrderById(PageRequest page);
 
-    List<User> findAllByIdIn(List<Integer> ids);
+    List<User> findAllByIdIn(List<Long> ids);
 
-    void deleteUserById(Integer id);
+    void deleteUserById(Long id);
 
     Optional<User> findByName(String name);
 }

@@ -23,7 +23,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional(readOnly = true)
+//@Transactional(readOnly = true)
+@Transactional
 public class CompilationServiceImpl implements CompilationService {
     private static final String NOT_FOUND_COMPILATION_MSG = "Compilation not found";
     private static final String NOT_FOUND_ID_REASON = "Incorrect Id";
@@ -35,12 +36,12 @@ public class CompilationServiceImpl implements CompilationService {
         List<Event> events = getEvents(newCompilationDto);
         Compilation compilation = compilationRepository.save(CompilationMapper.toNewEntity(newCompilationDto, events));
         log.info("Created compilation {}", compilation);
-        Map<Integer, Integer> views = eventService.getStats(events);
+        Map<Long, Integer> views = eventService.getStats(events);
         return CompilationMapper.toDto(compilation, views);
     }
 
     @Override
-    public void deleteById(Integer compId) {
+    public void deleteById(Long compId) {
         if (compilationRepository.findById(compId).isPresent()) {
             compilationRepository.deleteById(compId);
         } else {
@@ -49,11 +50,11 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
-    public CompilationDto updateCompilation(UpdateCompilationRequest updateCompilationDto, Integer compId) {
+    public CompilationDto updateCompilation(UpdateCompilationRequest updateCompilationDto, Long compId) {
         if (compilationRepository.findById(compId).isPresent()) {
             List<Event> events = new ArrayList<>();
             if (updateCompilationDto != null && updateCompilationDto.getEvents() != null) {
-                List<Integer> eventsId = new ArrayList<>(updateCompilationDto.getEvents());
+                List<Long> eventsId = new ArrayList<>(updateCompilationDto.getEvents());
                 events = eventService.findByIds(eventsId);
             }
             Compilation compilation1 = compilationRepository.findById(compId)
@@ -61,7 +62,7 @@ public class CompilationServiceImpl implements CompilationService {
             Compilation compilation = CompilationMapper.toEntity(updateCompilationDto, events, compilation1);
             compilation = compilationRepository.save(compilation);
             log.info("Updated compilation {}", compilation);
-            Map<Integer, Integer> views = eventService.getStats(events);
+            Map<Long, Integer> views = eventService.getStats(events);
             return CompilationMapper.toDto(compilation, views);
         } else {
             throw new NotFoundException(NOT_FOUND_COMPILATION_MSG, NOT_FOUND_ID_REASON);
@@ -75,21 +76,21 @@ public class CompilationServiceImpl implements CompilationService {
         for (Compilation compilation : compilations) {
             events.addAll(compilation.getEvents());
         }
-        Map<Integer, Integer> views = new HashMap<>(eventService.getStats(new ArrayList<>(events)));
+        Map<Long, Integer> views = new HashMap<>(eventService.getStats(new ArrayList<>(events)));
         return CompilationMapper.toDtos(compilations, views);
     }
 
     @Override
-    public CompilationDto getCompilation(Integer compId) {
+    public CompilationDto getCompilation(Long compId) {
         Compilation compilation = compilationRepository.findById(compId)
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_COMPILATION_MSG, NOT_FOUND_ID_REASON));
-        Map<Integer, Integer> views = eventService.getStats(compilation.getEvents());
+        Map<Long, Integer> views = eventService.getStats(compilation.getEvents());
         return CompilationMapper.toDto(compilation, views);
     }
 
     private List<Event> getEvents(NewCompilationDto newCompilationDto) {
         if (newCompilationDto != null && newCompilationDto.getEvents() != null) {
-            List<Integer> eventsId = new ArrayList<>(newCompilationDto.getEvents());
+            List<Long> eventsId = new ArrayList<>(newCompilationDto.getEvents());
             return eventService.findByIds(eventsId);
         } else {
             return Collections.emptyList();

@@ -20,7 +20,7 @@ public class PublicEventController {
     private final EventService eventService;
 
     @GetMapping(value = "/{eventId}")
-    public EventFullDto getEventById(@PathVariable Integer eventId, HttpServletRequest request) {
+    public EventFullDto getEventById(@PathVariable Long eventId, HttpServletRequest request) {
         log.info("Getting events by id={}", eventId);
         return eventService.getEventById(eventId, request);
     }

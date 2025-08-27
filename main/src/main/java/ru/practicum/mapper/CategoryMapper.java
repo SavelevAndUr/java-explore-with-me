@@ -20,7 +20,7 @@ public class CategoryMapper {
                 .build();
     }
 
-    public static Category toEntity(Integer catId, CategoryDto categoryDto) {
+    public static Category toEntity(Long catId, CategoryDto categoryDto) {
         String name = categoryDto.getName();
         return Category.builder()
                 .id(catId)

@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface CategoryRepository extends JpaRepository<Category, Integer> {
-    void deleteById(Integer catId);
+public interface CategoryRepository extends JpaRepository<Category, Long> {
+    void deleteById(Long catId);
 
     @Query("select c from Category c order by c.id")
     List<Category> findAllOrderById(PageRequest page);

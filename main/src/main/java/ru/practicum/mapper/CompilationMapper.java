@@ -19,7 +19,7 @@ public class CompilationMapper {
                 .build();
     }
 
-    public static CompilationDto toDto(Compilation compilation, Map<Integer, Integer> views) {
+    public static CompilationDto toDto(Compilation compilation, Map<Long, Integer> views) {
         return CompilationDto.builder()
                 .id(compilation.getId())
                 .events(EventMapper.toShortDtos(compilation.getEvents(), views))
@@ -50,7 +50,7 @@ public class CompilationMapper {
                 .build();
     }
 
-    public static List<CompilationDto> toDtos(List<Compilation> compilations, Map<Integer, Integer> views) {
+    public static List<CompilationDto> toDtos(List<Compilation> compilations, Map<Long, Integer> views) {
         List<CompilationDto> dtos = new ArrayList<>();
         for (Compilation compilation : compilations) {
             dtos.add(toDto(compilation, views));

@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RequestDto {
     private String created;
-    private Integer event;
-    private Integer id;
-    private Integer requester;
+    private Long event;
+    private Long id;
+    private Long requester;
     private String status;
 }

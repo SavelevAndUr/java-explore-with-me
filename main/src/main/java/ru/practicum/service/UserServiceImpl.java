@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> getUsers(List<Integer> ids, PageRequest page) {
+    public List<UserDto> getUsers(List<Long> ids, PageRequest page) {
         List<User> users;
         if (Objects.isNull(ids)) {
             users = userRepository.findAllOrderById(page);
@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void deleteUser(Integer userId) {
+    public void deleteUser(Long userId) {
         User user = findById(userId)
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_USER_MSG, NOT_FOUND_ID_REASON));
         userRepository.deleteUserById(userId);
@@ -57,7 +57,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> findById(Integer userId) {
+    public Optional<User> findById(Long userId) {
         return userRepository.findById(userId);
     }
 

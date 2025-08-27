@@ -17,7 +17,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 public class NewCompilationDto {
-    private Set<Integer> events;
+    private Set<Long> events;
     private Boolean pinned;
     @NotNull(groups = Marker.OnCreate.class)
     @NotBlank

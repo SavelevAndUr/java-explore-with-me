@@ -19,7 +19,7 @@ import java.util.List;
 public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
     private String annotation;
     @ManyToOne
     @JoinColumn(name = "category_id", referencedColumnName = "id")
@@ -32,10 +32,10 @@ public class Event {
     @Column(name = "event_date")
     private LocalDateTime eventDate;
     @ManyToOne
-    @JoinColumn(name = "initiator_id", referencedColumnName = "id")
+    @JoinColumn(name = "initiator_id", referencedColumnName = "id", nullable = false)
     private User initiator;
     @ManyToOne
-    @JoinColumn(name = "location_id", referencedColumnName = "id")
+    @JoinColumn(name = "location_id", referencedColumnName = "id", nullable = false)
     private Location location;
     private Boolean paid;
     @Column(name = "participant_limit")

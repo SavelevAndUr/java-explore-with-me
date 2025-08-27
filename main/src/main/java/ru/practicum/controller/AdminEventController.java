@@ -20,7 +20,7 @@ public class AdminEventController {
     private final EventService eventService;
 
     @GetMapping
-    public List<EventFullDto> getEventsByFilters(@RequestParam(required = false) List<Integer> users,
+    public List<EventFullDto> getEventsByFilters(@RequestParam(required = false) List<Long> users,
                                                  @RequestParam(required = false) List<String> states,
                                                  @RequestParam(required = false) List<Integer> categories,
                                                  @RequestParam(required = false) String rangeStart,
@@ -34,7 +34,7 @@ public class AdminEventController {
     }
 
     @PatchMapping(value = "/{eventId}")
-    public EventFullDto updateEvent(@PathVariable Integer eventId,
+    public EventFullDto updateEvent(@PathVariable Long eventId,
                                     @Valid @RequestBody UpdateEventDto updateEventAdminDto) {
         log.info("Updating event={}  by following data = {}", eventId, updateEventAdminDto);
         return eventService.updateEvent(null, eventId, updateEventAdminDto);

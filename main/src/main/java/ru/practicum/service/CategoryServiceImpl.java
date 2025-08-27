@@ -17,7 +17,8 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+//@Transactional(readOnly = true)
+@Transactional
 @Slf4j
 public class CategoryServiceImpl implements CategoryService {
 
@@ -40,7 +41,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void deleteCategory(Integer catId) {
+    public void deleteCategory(Long catId) {
         Category category = getCategoryEntity(catId);
 
         if (!categoryRepository.findCategoryRelatedToEvents(category).isEmpty()) {
@@ -52,7 +53,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryDto updateCategory(Integer catId, CategoryDto categoryDto) {
+    public CategoryDto updateCategory(Long catId, CategoryDto categoryDto) {
         if (checkCategoryName(categoryDto, catId)) {
             throw new ConflictException(INCORRECT_DATA_INPUT_MSG, INCORRECT_NAME_UNIQUE_REASON);
         }
@@ -69,20 +70,20 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryDto getCategory(Integer catId) {
+    public CategoryDto getCategory(Long catId) {
         Category category = getCategoryEntity(catId);
         return CategoryMapper.toDto(category);
     }
 
     @Override
-    public Category getCategoryEntity(Integer catId) {
+    public Category getCategoryEntity(Long catId) {
         Category category = categoryRepository.findById(catId)
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_CATEGORY_MSG, NOT_FOUND_ID_REASON));
         log.info("Found category {}", category);
         return category;
     }
 
-    private boolean checkCategoryName(CategoryDto categoryDto, Integer catId) {
+    private boolean checkCategoryName(CategoryDto categoryDto, Long catId) {
         if (categoryDto.getName() == null) {
             return false;
         }
