@@ -38,8 +38,13 @@ public class RequestServiceImpl implements RequestService {
     private static final String NOT_FOUND_ID_REASON = "Incorrect Id";
 
     private final RequestRepository requestRepository;
-    private final EventService eventService;
+    private EventService eventService;
     private final UserService userService;
+
+    @Autowired
+    public void setEventService(@Lazy EventService eventService) {
+        this.eventService = eventService;
+    }
 
     @Override
     public RequestDto createRequest(Integer userId, Integer eventId) {

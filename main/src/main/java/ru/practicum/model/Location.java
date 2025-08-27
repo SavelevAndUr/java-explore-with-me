@@ -3,7 +3,7 @@ package ru.practicum.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Embeddable
+@Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
