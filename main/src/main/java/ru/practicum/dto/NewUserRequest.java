@@ -1,5 +1,6 @@
 package ru.practicum.dto;
 
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
 import jakarta.validation.constraints.Email;
