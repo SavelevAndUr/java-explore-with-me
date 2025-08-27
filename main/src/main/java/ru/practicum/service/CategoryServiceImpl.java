@@ -83,6 +83,9 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     private boolean checkCategoryName(CategoryDto categoryDto, Integer catId) {
+        if (categoryDto.getName() == null) {
+            return false;
+        }
         return categoryRepository.findByName(categoryDto.getName())
                 .map(Category::getId)
                 .filter(id -> !Objects.equals(catId, id))
