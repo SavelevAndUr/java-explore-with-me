@@ -9,6 +9,7 @@ import ru.practicum.dto.NewUserRequest;
 import ru.practicum.dto.UserDto;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
+import ru.practicum.exception.ValidationException;
 import ru.practicum.mapper.UserMapper;
 import ru.practicum.model.User;
 import ru.practicum.repository.UserRepository;
@@ -26,13 +27,22 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDto createUser(NewUserRequest newUserRequest) {
+
         if (userRepository.existsByEmail(newUserRequest.getEmail())) {
             throw new ConflictException("Email already exists");
         }
 
+        if (newUserRequest.getName().trim().isEmpty()) {
+            throw new ValidationException("Name cannot be empty or consist only of whitespace");
+        }
+
+        if (newUserRequest.getEmail().trim().isEmpty()) {
+            throw new ValidationException("Email cannot be empty or consist only of whitespace");
+        }
+
         User user = User.builder()
-                .name(newUserRequest.getName())
-                .email(newUserRequest.getEmail())
+                .name(newUserRequest.getName().trim())
+                .email(newUserRequest.getEmail().trim())
                 .build();
 
         User savedUser = userRepository.save(user);
