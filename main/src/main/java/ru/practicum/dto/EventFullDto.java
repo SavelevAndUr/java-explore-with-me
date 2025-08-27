@@ -2,17 +2,13 @@ package ru.practicum.dto;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import ru.practicum.model.EventState;
-import ru.practicum.model.Location;
 import ru.practicum.model.State;
 
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class EventFullDto extends EventShortDto {
     private String createdOn;
     private String description;
@@ -21,7 +17,7 @@ public class EventFullDto extends EventShortDto {
     private Integer participantLimit;
     private String publishedOn;
     private Boolean requestModeration;
-
+    private State state;
 
     @Builder(builderMethodName = "childBuilder")
     public EventFullDto(@NotNull String annotation, @NotNull CategoryDto category, Integer confirmedRequests,
