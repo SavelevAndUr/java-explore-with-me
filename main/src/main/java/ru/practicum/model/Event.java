@@ -75,11 +75,11 @@ public class Event {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @Transient
+//    @Transient
     @Builder.Default
     private Long views = 0L;
 
-    @Transient
+//    @Transient
     @Builder.Default
     private Long confirmedRequests = 0L;
 
