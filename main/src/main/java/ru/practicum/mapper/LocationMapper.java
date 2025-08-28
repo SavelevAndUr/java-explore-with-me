@@ -3,7 +3,6 @@ package ru.practicum.mapper;
 import ru.practicum.dto.LocationDto;
 import ru.practicum.model.Location;
 
-// LocationMapper.java
 public class LocationMapper {
     public static Location toNewEntity(LocationDto locationDto) {
         return Location.builder()

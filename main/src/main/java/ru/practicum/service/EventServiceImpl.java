@@ -92,6 +92,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<EventShortDto> getEventsByUserId(Long userId, PageRequest page) {
         List<Event> events = eventRepository.findAllByInitiatorId(userId, page);
         Map<Long, Integer> views = getStats(events);
@@ -100,6 +101,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Map<Long, Integer> getStats(List<Event> events) {
         Map<Long, Integer> views = new HashMap<>();
         for (Event event : events) {
@@ -111,6 +113,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public EventFullDto getEventsById(Long userId, Long eventId) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_EVENT_MSG, NOT_FOUND_ID_REASON));
@@ -148,6 +151,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<RequestDto> getRequestsByEventId(Long userId, Long eventId) {
         return requestService.getRequestsByEventId(eventId);
     }
@@ -162,6 +166,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<EventFullDto> getEventsByAdminFilters(List<Long> users, List<String> statesStr, List<Integer> categories,
                                                       String rangeStart, String rangeEnd, PageRequest page) {
         LocalDateTime start = parseDateTime(rangeStart);
@@ -174,6 +179,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<EventShortDto> getEventsByPublicFilters(String text, List<Integer> categories, Boolean paid,
                                                         String rangeStart, String rangeEnd, Boolean onlyAvailable,
                                                         String sort, PageRequest page, HttpServletRequest request) {
@@ -204,6 +210,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public EventFullDto getEventById(Long eventId, HttpServletRequest request) {
         Event event = eventRepository.findByIdAndState(eventId, State.PUBLISHED)
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_EVENT_MSG, NOT_FOUND_ID_REASON));
@@ -215,6 +222,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Event> findByIds(List<Long> eventsId) {
         return eventRepository.findAllById(eventsId);
     }

@@ -17,7 +17,6 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-//@Transactional(readOnly = true)
 @Transactional
 @Slf4j
 public class CategoryServiceImpl implements CategoryService {
@@ -63,6 +62,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CategoryDto> getCategories(PageRequest page) {
         List<Category> categories = categoryRepository.findAllOrderById(page);
         log.info("Found categories {}", categories);
@@ -70,12 +70,14 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CategoryDto getCategory(Long catId) {
         Category category = getCategoryEntity(catId);
         return CategoryMapper.toDto(category);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Category getCategoryEntity(Long catId) {
         Category category = categoryRepository.findById(catId)
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_CATEGORY_MSG, NOT_FOUND_ID_REASON));

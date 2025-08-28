@@ -64,6 +64,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<RequestDto> getRequestsByUserId(Long userId) {
         List<Request> requests = requestRepository.findAllByRequesterId(userId);
         log.info("Getting requests {} and reverting to controller as dto", requests);
@@ -80,6 +81,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<RequestDto> getRequestsByEventId(Long eventId) {
         List<Request> requests = requestRepository.findAllByEventId(eventId);
         log.info("Getting requests {}", requests);

@@ -36,6 +36,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<UserDto> getUsers(List<Long> ids, PageRequest page) {
         List<User> users;
         if (Objects.isNull(ids)) {
@@ -57,6 +58,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<User> findById(Long userId) {
         return userRepository.findById(userId);
     }
