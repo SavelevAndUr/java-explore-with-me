@@ -1,107 +1,56 @@
 package ru.practicum.client;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.practicum.dto.EndpointHit;
 import ru.practicum.dto.ViewStats;
-import ru.practicum.dto.ViewStatsRequest;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 
-import java.net.URI;
-import java.net.URLEncoder;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
-@Slf4j
 @Service
-@RequiredArgsConstructor
-public class StatsClient {
+public class StatsClient extends BaseClient {
 
-    private static final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    @Autowired
+    public StatsClient(@Value("${ewm-stats-server.url}") String serverUrl, RestTemplateBuilder builder) {
+        super(
+                builder
+                        .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
+                        .build()
+        );
+    }
 
-    @Value("${spring.application.name}")
-    private final String application;
-
-    @Value("${service.stats-service.uri:http://localhost:9090}")
-    private final String statsServiceUri;
-
-    private final ObjectMapper json;
-    private final HttpClient httpClient = HttpClient.newBuilder()
-            .connectTimeout(Duration.ofSeconds(2))
-            .build();
-
-    public void hit(HttpServletRequest userRequest) {
-        EndpointHit hit = EndpointHit.builder()
-                .app(application)
-                .ip(userRequest.getRemoteAddr())
-                .uri(userRequest.getRequestURI())
-                .timestamp(LocalDateTime.now())
-                .build();
-
-        try {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(statsServiceUri + "/hit"))
-                    .POST(HttpRequest.BodyPublishers.ofString(json.writeValueAsString(hit)))
-                    .header("Content-Type", "application/json")
-                    .build();
-
-            HttpResponse<Void> response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
-            log.debug("Hit recorded successfully. Status: {}", response.statusCode());
-        } catch (Exception e) {
-            log.error("Failed to record hit to stats service", e);
+    public ResponseEntity<List<ViewStats>> getStats(String start, String end, String uris, String unique) {
+        if (Objects.nonNull(uris)) {
+            Map<String, Object> parameters = Map.of(
+                    "start", start,
+                    "end", end,
+                    "uris", uris,
+                    "unique", unique
+            );
+            return get("/stats?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
+        } else {
+            Map<String, Object> parameters = Map.of(
+                    "start", start,
+                    "end", end,
+                    "unique", unique
+            );
+            return get("/stats?start={start}&end={end}&unique={unique}", parameters);
         }
     }
 
-    public List<ViewStats> getStats(ViewStatsRequest request) {
-        try {
-            String queryString = buildQueryString(request);
-            HttpRequest httpRequest = HttpRequest.newBuilder()
-                    .uri(URI.create(statsServiceUri + "/stats" + queryString))
-                    .GET()
-                    .header("Accept", "application/json")
-                    .build();
-
-            HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() == 200) {
-                return json.readValue(response.body(), new TypeReference<List<ViewStats>>() {});
-            }
-            log.warn("Unexpected response status: {}", response.statusCode());
-        } catch (Exception e) {
-            log.error("Failed to get stats from stats service", e);
+    public void createStats(EndpointHit endpointHit) {
+        ResponseEntity<List<ViewStats>> response = post("/hit", endpointHit);
+        if (Objects.isNull(response)) {
+            ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body("Информация сохранена");
         }
-        return Collections.emptyList();
-    }
-
-    private String buildQueryString(ViewStatsRequest request) {
-        StringBuilder builder = new StringBuilder("?");
-
-        builder.append("start=").append(encode(request.getStart().format(DTF)));
-        builder.append("&end=").append(encode(request.getEnd().format(DTF)));
-
-        if (request.getUris() != null && !request.getUris().isEmpty()) {
-            builder.append("&uris=").append(String.join(",", request.getUris()));
-        }
-
-        if (request.isUnique()) {
-            builder.append("&unique=true");
-        }
-
-        return builder.toString();
-    }
-
-    private String encode(String value) {
-        return URLEncoder.encode(value, StandardCharsets.UTF_8);
     }
 }

@@ -3,6 +3,7 @@ package ru.practicum.controller;
 import jakarta.validation.Valid;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,22 +20,23 @@ import java.util.List;
 @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 @Validated
 @RequiredArgsConstructor
+@Slf4j
 public class StatsController {
-
-    private final StatsService service;
-
-    @PostMapping(path = "/hit")
-    @ResponseStatus(code = HttpStatus.CREATED)
-    public void hit(@RequestBody @Valid EndpointHit hit) {
-        service.create(hit);
-    }
+    private final StatsService statsService;
 
     @GetMapping("/stats")
-    public ResponseEntity<List<ViewStats>> getStats(@RequestParam @NonNull String start,
-                                                    @RequestParam @NonNull String end,
-                                                    @RequestParam(required = false) List<String> uris,
-                                                    @RequestParam(defaultValue = "false") Boolean unique) {
-        List<ViewStats> results = service.getStats(start, end, uris, unique);
-        return ResponseEntity.ok(results);
+    public List<ViewStats> get(@RequestParam(name = "start") String start,
+                               @RequestParam(name = "end") String end,
+                               @RequestParam(name = "uris", required = false) List<String> uris,
+                               @RequestParam(name = "unique", defaultValue = "false") Boolean unique) {
+        log.info("Getting stats from {} to {}, uris = {}, unique = {}", start, end, uris, unique);
+        return statsService.getStats(start, end, uris, unique);
+    }
+
+    @PostMapping("/hit")
+    @ResponseStatus(HttpStatus.CREATED)
+    public EndpointHit create(@RequestBody EndpointHit endpointHit) {
+        log.info("Creating stats {}", endpointHit);
+        return statsService.createStats(endpointHit);
     }
 }
