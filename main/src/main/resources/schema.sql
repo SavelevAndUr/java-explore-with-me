@@ -69,5 +69,5 @@ CREATE TABLE IF NOT EXISTS compilation_events (
 CREATE TABLE IF NOT EXISTS ratings (
     event_id BIGINT      NOT NULL,
     user_id  BIGINT      NOT NULL,
-    rate     VARCHAR(16) NOT NULL,
+    rate     VARCHAR(16) NOT NULL
 );
