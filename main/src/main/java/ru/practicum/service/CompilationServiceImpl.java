@@ -87,7 +87,8 @@ public class CompilationServiceImpl implements CompilationService {
         Compilation compilation = compilationRepository.findById(compId)
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_COMPILATION_MSG, NOT_FOUND_ID_REASON));
         Map<Long, Integer> views = eventService.getStats(compilation.getEvents());
-        return CompilationMapper.toDto(compilation, views);
+        Map<Long, RatingDto> ratings = ratingService.getRatingsByEvents(compilation.getEvents());
+        return CompilationMapper.toDto(compilation, views, ratings);
     }
 
     private List<Event> getEvents(NewCompilationDto newCompilationDto) {
