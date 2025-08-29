@@ -2,12 +2,12 @@ package ru.practicum.mapper;
 
 import ru.practicum.dto.CompilationDto;
 import ru.practicum.dto.NewCompilationDto;
+import ru.practicum.dto.RatingDto;
 import ru.practicum.dto.UpdateCompilationRequest;
 import ru.practicum.model.Compilation;
 import ru.practicum.model.Event;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class CompilationMapper {
 
@@ -19,10 +19,10 @@ public class CompilationMapper {
                 .build();
     }
 
-    public static CompilationDto toDto(Compilation compilation, Map<Long, Integer> views) {
+    public static CompilationDto toDto(Compilation compilation, Map<Long, Integer> views, Map<Long, RatingDto> ratings) {
         return CompilationDto.builder()
                 .id(compilation.getId())
-                .events(EventMapper.toShortDtos(compilation.getEvents(), views))
+                .events(EventMapper.toShortDtos(compilation.getEvents(), views, ratings))
                 .pinned(compilation.getPinned())
                 .title(compilation.getTitle())
                 .build();
@@ -39,21 +39,10 @@ public class CompilationMapper {
                 .build();
     }
 
-    public static Compilation toEntity(NewCompilationDto newCompilationDto, List<Event> events,
-                                       Compilation compilation) {
-        return Compilation.builder()
-                .id(compilation.getId())
-                .events(events)
-                .pinned(newCompilationDto.getPinned())
-                .title(Objects.isNull(newCompilationDto.getTitle())
-                        ? compilation.getTitle() : newCompilationDto.getTitle())
-                .build();
-    }
-
-    public static List<CompilationDto> toDtos(List<Compilation> compilations, Map<Long, Integer> views) {
+    public static List<CompilationDto> toDtos(List<Compilation> compilations, Map<Long, Integer> views, Map<Long, RatingDto> ratings) {
         List<CompilationDto> dtos = new ArrayList<>();
         for (Compilation compilation : compilations) {
-            dtos.add(toDto(compilation, views));
+            dtos.add(toDto(compilation, views, ratings));
         }
         return dtos;
     }

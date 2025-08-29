@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.CompilationDto;
 import ru.practicum.dto.NewCompilationDto;
+import ru.practicum.dto.RatingDto;
 import ru.practicum.dto.UpdateCompilationRequest;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.mapper.CompilationMapper;
@@ -25,6 +26,7 @@ public class CompilationServiceImpl implements CompilationService {
     private static final String NOT_FOUND_ID_REASON = "Incorrect Id";
     private final CompilationRepository compilationRepository;
     private final EventService eventService;
+    private final RatingService ratingService;
 
     @Override
     public CompilationDto createCompilation(NewCompilationDto newCompilationDto) {
@@ -32,7 +34,8 @@ public class CompilationServiceImpl implements CompilationService {
         Compilation compilation = compilationRepository.save(CompilationMapper.toNewEntity(newCompilationDto, events));
         log.info("Created compilation {}", compilation);
         Map<Long, Integer> views = eventService.getStats(events);
-        return CompilationMapper.toDto(compilation, views);
+        Map<Long, RatingDto> ratings = ratingService.getRatingsByEvents(events);
+        return CompilationMapper.toDto(compilation, views, ratings);
     }
 
     @Override
@@ -58,7 +61,8 @@ public class CompilationServiceImpl implements CompilationService {
             compilation = compilationRepository.save(compilation);
             log.info("Updated compilation {}", compilation);
             Map<Long, Integer> views = eventService.getStats(events);
-            return CompilationMapper.toDto(compilation, views);
+            Map<Long, RatingDto> ratings = ratingService.getRatingsByEvents(events);
+            return CompilationMapper.toDto(compilation, views, ratings);
         } else {
             throw new NotFoundException(NOT_FOUND_COMPILATION_MSG, NOT_FOUND_ID_REASON);
         }
@@ -73,7 +77,8 @@ public class CompilationServiceImpl implements CompilationService {
             events.addAll(compilation.getEvents());
         }
         Map<Long, Integer> views = new HashMap<>(eventService.getStats(new ArrayList<>(events)));
-        return CompilationMapper.toDtos(compilations, views);
+        Map<Long, RatingDto> ratings =  new HashMap<>(ratingService.getRatingsByEvents(new ArrayList<>(events)));
+        return CompilationMapper.toDtos(compilations, views, ratings);
     }
 
     @Override

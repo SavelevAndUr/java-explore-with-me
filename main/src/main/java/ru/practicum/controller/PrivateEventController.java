@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.*;
+import ru.practicum.model.Rate;
 import ru.practicum.service.EventService;
 
 import jakarta.validation.Valid;
@@ -65,5 +66,20 @@ public class PrivateEventController {
                                                     @Valid @RequestBody RequestStatusUpdateDto requestStatusUpdateDto) {
         log.info("Updating status for requests={} for event={} from user={}", requestStatusUpdateDto, eventId, userId);
         return eventService.updateEventRequestsStatus(eventId, userId, requestStatusUpdateDto);
+    }
+
+    @PostMapping(value = "/{eventId}/rating")
+    @ResponseStatus(HttpStatus.CREATED)
+    public EventShortDto addRateToEvent(@PathVariable Long userId, @PathVariable Long eventId,
+                                        @RequestParam Rate rate) {
+        log.info("Adding rate={} event={} from user={}", rate, eventId, userId);
+        return eventService.addRateToEvent(userId, eventId, rate);
+    }
+
+    @DeleteMapping(value = "/{eventId}/rating")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public EventShortDto deleteRateFromEvent(@PathVariable Long userId, @PathVariable Long eventId) {
+        log.info("Deleting rate from event={} from user={}", eventId, userId);
+        return eventService.deleteRateFromEvent(userId, eventId);
     }
 }

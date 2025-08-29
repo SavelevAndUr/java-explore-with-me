@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.PageRequest;
 import ru.practicum.dto.*;
 import ru.practicum.model.Event;
+import ru.practicum.model.Rate;
 
 import java.util.List;
 import java.util.Map;
@@ -36,4 +37,8 @@ public interface EventService {
     EventFullDto getEventById(Long eventId, HttpServletRequest request);
 
     List<Event> findByIds(List<Long> eventsId);
+
+    EventShortDto addRateToEvent(Long userId, Long eventId, Rate rate);
+
+    EventShortDto deleteRateFromEvent(Long userId, Long eventId);
 }
