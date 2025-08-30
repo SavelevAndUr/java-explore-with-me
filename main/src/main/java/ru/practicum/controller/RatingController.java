@@ -1,5 +1,6 @@
 package ru.practicum.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -17,13 +18,9 @@ import java.util.List;
 @RestController
 @Slf4j
 @RequestMapping(path = "/ratings")
+@RequiredArgsConstructor
 public class RatingController {
     private final RatingService ratingService;
-
-    @Autowired
-    public RatingController(RatingService ratingService) {
-        this.ratingService = ratingService;
-    }
 
     @GetMapping(value = "/events")
     public List<RatingDto> getRatingsForEvents(@RequestParam(required = false, defaultValue = "LIKE") Rate rate,

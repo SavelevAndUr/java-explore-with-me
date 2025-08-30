@@ -1,5 +1,6 @@
 package ru.practicum.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -18,13 +19,9 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class RatingServiceImpl implements RatingService {
     private final RatingRepository ratingRepository;
-
-    @Autowired
-    public RatingServiceImpl(RatingRepository ratingRepository) {
-        this.ratingRepository = ratingRepository;
-    }
 
     @Override
     public RatingDto addRate(User rater, Event event, Rate rate) {
